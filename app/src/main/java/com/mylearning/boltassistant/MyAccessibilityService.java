@@ -17,13 +17,17 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+
+import com.mylearning.boltassistant.TripSelector.AbstractSelector;
+import com.mylearning.boltassistant.TripSelector.BoltNormal;
+
+import java.util.concurrent.LinkedBlockingDeque;
+
 public class MyAccessibilityService extends AccessibilityService {
     private static final String TAG = "MyAccessibilityService";
     private static MyAccessibilityService instance;
     private Handler handler;
-    private BlockingQueue<Command> commandQueue = new LinkedBlockingQueue<>();
+    private LinkedBlockingDeque<Command> commandQueue = new LinkedBlockingDeque<>();
     private boolean debugMode = false;  // Set to true to enable debug overlay
 
     private WindowManager windowManager;
@@ -33,19 +37,15 @@ public class MyAccessibilityService extends AccessibilityService {
     private final Object lock = new Object();
     private StringBuilder allText=new StringBuilder();
 
+    private volatile boolean shouldBeContinue = true;
+    private volatile boolean  runningStatus=false;
+
     @Override
     public void onCreate() {
         super.onCreate();
         instance = this;
         handler = new Handler(Looper.getMainLooper());
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        instance = null;
-        removeDebugOverlay();
     }
 
     public static MyAccessibilityService getInstance() {
@@ -97,44 +97,62 @@ public class MyAccessibilityService extends AccessibilityService {
     }
 
     public void executeAllCommands() {
-        MyLog.d(TAG, Thread.currentThread().getName());
+        turnOnAllCommand();
+        System.out.println("Size of the Queue ="+commandQueue.size());
+        if(runningStatus){
+            Log.d(TAG, "executeAllCommand is already running a task");
+        }
+        runningStatus=true;
         new Thread(() -> {
-            while (!commandQueue.isEmpty()) {
+            while (shouldBeContinue) {
                 try {
-                    Command command = commandQueue.take();
-                    synchronized (lock) {
-                        command.execute();
-                        lock.wait();
-
-                        // Check the result of text extraction commands
-                        if (command instanceof ReadTextCommand) {
-                            if (!((ReadTextCommand) command).getResult()) {
-                                Log.d(TAG, "Text extraction failed, stopping execution.");
-                                break;
-                            }
-                        } else if (command instanceof ReadAllTextCommand) {
-                            if (!((ReadAllTextCommand) command).getResult()) {
-                                Log.d(TAG, "Text extraction failed, stopping execution.");
-                                break;
-                            }
+                    Command command = commandQueue.take(); // Take the next command
+                    if(command.getType()==0) {
+                        long startTime = System.currentTimeMillis();
+                        synchronized (lock) {
+                            command.execute(); // Execute the command
+                            lock.wait(); // Wait for the command to finish
                         }
+                        long executionTime = System.currentTimeMillis() - startTime;
+                        long remainingTime = command.getTimeUntilNextCommand() - executionTime;
+                        if (remainingTime > 0) {
+                            Thread.sleep(remainingTime); // Wait if necessary
+                        }
+                    }else {
+                        synchronized (lock) {
+                            command.execute(); // Execute the command
+                            // here I need to do text analysis
+                            AbstractSelector tripSelector=new BoltNormal(getFullText());
+                            if(!tripSelector.selectInput()){
+                                commandQueue.putLast(command);
+                                continue;
+                            };
+
+                            lock.wait(); // Wait for the command to finish
+                        }
+
                     }
+                    commandQueue.putLast(command); // Re-insert the command at the end
                 } catch (InterruptedException e) {
                     Log.e(TAG, "Command processing interrupted", e);
-                    break;
+                    break; // Exit the loop if interrupted
                 }
             }
         }).start();
+        runningStatus=false;
     }
 
 
 
+
     // Method to analyze the extracted text
+
     public boolean analyzeExtractedText(String text) {
         MyLog.d(TAG, Thread.currentThread().getName());
         // Implement your analysis logic here
         // Return true if analysis succeeds, false if it fails
         MyLog.d(TAG, getFullText());
+        //BoltNormal boltNormal=new BoltNormal();
 
 
         return !text.isEmpty();  // Example: fail if text is empty
@@ -201,7 +219,6 @@ public class MyAccessibilityService extends AccessibilityService {
             }, timeUntilNextCommand);
         }
     }
-
     public void extractTextFromRect(Rect targetRect, Runnable callback) {
         MyLog.d(TAG, Thread.currentThread().getName());
         handler.post(() -> {
@@ -436,6 +453,7 @@ public class MyAccessibilityService extends AccessibilityService {
     }
 
     // Method to traverse and log the view hierarchy
+
     private void debugViewHierarchy(AccessibilityNodeInfo node, int depth, StringBuilder result) {
         if (node == null) return;
 
@@ -453,8 +471,8 @@ public class MyAccessibilityService extends AccessibilityService {
             debugViewHierarchy(node.getChild(i), depth + 1, result);
         }
     }
-
     // Method to retrieve the view hierarchy text
+
     public String getDebugViewHierarchyText(AccessibilityNodeInfo rootNode) {
         StringBuilder result = new StringBuilder();
         debugViewHierarchy(rootNode, 0, result); // Start with depth 0
@@ -468,11 +486,25 @@ public class MyAccessibilityService extends AccessibilityService {
             Log.d(TAG, viewHierarchy);
         }
     }
+    public void stopAllCommands() {
+        shouldBeContinue=false;
+    }
+    private void turnOnAllCommand(){
+        shouldBeContinue=true;
+    }
     private void removeDebugOverlay() {
         if (debugOverlay != null) {
             windowManager.removeView(debugOverlay);
             debugOverlay = null;
         }
     }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        removeDebugOverlay();
+    }
+
+
 }
 
