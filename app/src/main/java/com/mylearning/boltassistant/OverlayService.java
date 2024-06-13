@@ -78,54 +78,10 @@ public class OverlayService extends Service {
         registerSettingsResultReceiver();
         return START_STICKY;
     }
-    private void registerSettingsResultReceiver() {
-        settingsResultReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                List<String> loadedJsons = (List<String>) intent.getSerializableExtra("loadedConfig");
-                if (loadedJsons != null) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        // first removing the shape like delete button
-                        shapeViews.forEach(
-                                windowManager::removeView);
-                        shapeViews.clear();
-                        for (String json : loadedJsons) {
-                            MyLog.d(TAG, json);
-                            AbstractShapeView shapeView=ShapeViewFactory.createShapeView(getApplication(), json);
-                            shapeViews.add(shapeView);
-                            addShapeView(shapeView);
-
-                        }
-                    }
-                }
-            }
-        };
-
-
-        IntentFilter filter = new IntentFilter(ACTION_SETTINGS_RESULT);
-
-        registerReceiver(settingsResultReceiver, filter);
-
-
-        }
 
 
 
-    private void acquireWakeLock() {
-        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        if (powerManager != null) {
-            wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "OverlayService:WakeLock");
-            wakeLock.acquire();
-            Log.d(TAG, "WakeLock acquired");
-        }
-    }
 
-    private void releaseWakeLock() {
-        if (wakeLock != null && wakeLock.isHeld()) {
-            wakeLock.release();
-            Log.d(TAG, "WakeLock released");
-        }
-    }
 
     private void startForegroundService() {
         Intent notificationIntent = new Intent(this, MainActivity.class);
@@ -197,7 +153,7 @@ public class OverlayService extends Service {
     }
 
     private void handleAddCircleButtonClick() {
-        CircleView newCircle = new CircleView(getApplicationContext(), centerX, centerY, 50, 50, 60, shapeViews.size() + 1);
+        CircleView newCircle = new CircleView(getApplicationContext(), centerX, centerY, 50, 10, 500, shapeViews.size() + 1);
         shapeViews.add(newCircle);
         addShapeView(newCircle);
         Log.d(TAG, "Add Button clicked, new circle added");
@@ -212,12 +168,12 @@ public class OverlayService extends Service {
 
     private void handleStopButtonClick() {
         shouldBeContinue = false;
-        if (mainLoopThread != null) {
-            mainLoopThread.interrupt();
+        MyAccessibilityService service = MyAccessibilityService.getInstance();
+        if (service != null) {
+            service.stopAllCommands(); // Implement a method to safely stop command execution
         }
         Log.d(TAG, "Stop Button clicked");
     }
-
 
     private void handleSettingsButtonClick() {
         Intent intent = new Intent(this, SettingsActivity.class);
@@ -286,6 +242,51 @@ public class OverlayService extends Service {
         params.gravity = Gravity.TOP | Gravity.START;
 
         windowManager.addView(shapeView, params);
+    }
+    private void registerSettingsResultReceiver() {
+        settingsResultReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                List<String> loadedJsons = (List<String>) intent.getSerializableExtra("loadedConfig");
+                if (loadedJsons != null) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        // first removing the shape like delete button
+                        shapeViews.forEach(
+                                windowManager::removeView);
+                        shapeViews.clear();
+                        for (String json : loadedJsons) {
+                            MyLog.d(TAG, json);
+                            AbstractShapeView shapeView=ShapeViewFactory.createShapeView(getApplication(), json);
+                            shapeViews.add(shapeView);
+                            addShapeView(shapeView);
+
+                        }
+                    }
+                }
+            }
+        };
+
+
+        IntentFilter filter = new IntentFilter(ACTION_SETTINGS_RESULT);
+
+        registerReceiver(settingsResultReceiver, filter);
+
+
+    }
+    private void acquireWakeLock() {
+        PowerManager powerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+
+        if (powerManager != null) {
+            wakeLock = powerManager.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP, "OverlayService:WakeLock");
+            wakeLock.acquire();
+            Log.d(TAG, "WakeLock acquired");
+        }
+    }
+    private void releaseWakeLock() {
+        if (wakeLock != null && wakeLock.isHeld()) {
+            wakeLock.release();
+            Log.d(TAG, "WakeLock released");
+        }
     }
 
     @Override

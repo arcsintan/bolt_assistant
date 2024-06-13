@@ -5,18 +5,27 @@ public class ReadAllTextCommand implements Command {
     private boolean result;
 
     public ReadAllTextCommand(MyAccessibilityService service) {
+
         this.service = service;
     }
 
     @Override
     public void execute() {
-        service.extractAllText(() -> {
-            String extractedText = service.getFullText();
-            result = service.analyzeExtractedText(extractedText);
+        service.extractAllText(new Runnable() {
+            @Override
+            public void run() {
+
+            }
         });
     }
 
-    public boolean getResult() {
-        return result;
+    @Override
+    public int getTimeUntilNextCommand() {
+        return 0;
+    }
+
+    @Override
+    public int getType() {
+        return 2;
     }
 }

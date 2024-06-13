@@ -24,4 +24,14 @@ class SimulateTouchCommand implements Command {
             }
         });
     }
+
+    @Override
+    public int getTimeUntilNextCommand() {
+        return timeUntilNextCommand;
+    }
+
+    @Override
+    public int getType() {
+        return 0;
+    }
 }

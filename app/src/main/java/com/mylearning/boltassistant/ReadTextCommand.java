@@ -14,10 +14,23 @@ public class ReadTextCommand implements Command {
 
     @Override
     public void execute() {
-        service.extractTextFromRect(targetRect, () -> {
-            String extractedText = service.getFullText();
-            result = service.analyzeExtractedText(extractedText);
-        });
+        service.extractTextFromRect(targetRect, new Runnable() {
+                    @Override
+                    public void run() {
+
+                    }
+                }
+        );
+    }
+
+    @Override
+    public int getTimeUntilNextCommand() {
+        return 0;
+    }
+
+    @Override
+    public int getType() {
+        return 1;
     }
 
     public boolean getResult() {

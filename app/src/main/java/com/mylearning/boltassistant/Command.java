@@ -17,4 +17,6 @@ package com.mylearning.boltassistant;
   */
 public interface Command {
     void execute();
+    int getTimeUntilNextCommand();
+    int getType();
 }

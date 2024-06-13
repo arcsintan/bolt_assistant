@@ -21,11 +21,7 @@ public class RectangleView extends AbstractShapeView {
         init();
     }
     public RectangleView(Context context, RectangleData rectangleData) {
-        super(context, rectangleData.getX(), rectangleData.getY());
-        this.index = rectangleData.getIndex();
-        this.width = rectangleData.getWidth();
-        this.height = rectangleData.getHeight();
-        init();
+        this(context, rectangleData.getX(), rectangleData.getY(), rectangleData.getWidth(), rectangleData.getHeight(), rectangleData.getIndex());
     }
 
     public RectangleView(Context context,int x, int y,  AttributeSet attrs) {

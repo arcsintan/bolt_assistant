@@ -114,4 +114,5 @@ public abstract class AbstractShapeView extends RelativeLayout {
     public abstract void execute(MyAccessibilityService service);
     public abstract String toJson();
     abstract String getType();
+
 }

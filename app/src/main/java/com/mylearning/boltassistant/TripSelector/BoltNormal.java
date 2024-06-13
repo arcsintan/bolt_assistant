@@ -1,23 +1,29 @@
 package com.mylearning.boltassistant.TripSelector;
 
+import com.mylearning.boltassistant.MyLog;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 public class BoltNormal implements AbstractSelector {
-    private String tripString;
-    public BoltNormal(String tripString) {
-        this.tripString = tripString;
+    final String TAG="BoltNormal";
+    private String text;
+
+    public BoltNormal(String text) {
+        this.text = text;
     }
 
     @Override
-    public boolean selectTrip() {
+    public boolean selectInput() {
+        analyzeText(text);
         return true;
     }
 
     @Override
-    public void analyzeTrip(String tripData) {
-
+    public void analyzeText(String inputText) {
+        MyLog.d(TAG, inputText);
 
     }
+
     public static class TripData {
         int km;
         LocalDateTime now;
