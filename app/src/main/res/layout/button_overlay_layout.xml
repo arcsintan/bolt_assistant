@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="#CC000000"
+    android:padding="10dp">
+
+    <ImageButton
+        android:id="@+id/button_play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_play"
+        android:contentDescription="@string/play_button"
+        android:background="@null"
+        android:layout_marginBottom="14dp"
+        />
+
+    <ImageButton
+        android:id="@+id/button_add_circle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_add_circle"
+        android:contentDescription="@string/add_button"
+        android:background="@null"
+        android:layout_marginBottom="14dp"
+        />
+
+    <ImageButton
+        android:id="@+id/button_remove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_remove"
+        android:contentDescription="@string/remove_button"
+        android:background="@null"
+        android:layout_marginBottom="14dp"
+        />
+
+    <ImageButton
+        android:id="@+id/button_read_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_read_text"
+        android:contentDescription="@string/swipe_button"
+        android:background="@null"
+        android:layout_marginBottom="14dp"
+        />
+
+    <ImageButton
+        android:id="@+id/button_stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_stop"
+        android:contentDescription="@string/stop_button"
+        android:background="@null"
+        android:layout_marginBottom="14dp"
+        />
+
+    <ImageButton
+        android:id="@+id/button_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_settings"
+        android:contentDescription="@string/settings_button"
+        android:background="@null"
+        android:layout_marginBottom="14dp"
+        />
+</LinearLayout>

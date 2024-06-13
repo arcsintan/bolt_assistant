@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">boltAssistant</string>
+    <string name="play_button">Play</string>
+    <string name="add_button">Add</string>
+    <string name="swipe_button">Swipe</string>
+    <string name="stop_button">Stop</string>
+    <string name="settings_button">Settings</string>
+    <string name="remove_button">Remove</string>
+
+
+    <string name="accessibility_service_description">This service is used to simulate touch events for automation purposes.</string>
+        <!-- Add any other existing strings here -->
+
+    <string name="new_configuration">New Configuration</string>
+    <string name="delete_configuration">Delete Configuration</string>
+    <string name="load_configuration">Load Configuration</string>
+    <string name="cancel">Cancel</string>
+    <string name="save_configuration">Save Configuration</string>
+    <string name="configuration_saved">Configuration saved</string>
+    <string name="configuration_deleted">Configuration deleted</string>
+    <string name="no_configuration_selected">No configuration selected</string>
+    <string name="select_a_configuration">Select a configuration</string>
+    <string name="or">OR</string>
+
+</resources>
