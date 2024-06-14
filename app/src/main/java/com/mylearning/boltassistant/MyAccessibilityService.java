@@ -32,6 +32,7 @@ public class MyAccessibilityService extends AccessibilityService {
     private volatile boolean shouldBeContinue = true;
     private volatile boolean runningStatus = false;
     private Thread commandThread; // The thread running the commands
+    private List<String> importantTextData = new ArrayList<>();
 
     @Override
     public void onCreate() {
@@ -115,8 +116,11 @@ public class MyAccessibilityService extends AccessibilityService {
                             synchronized (lock) {
                                 command.execute(); // Execute the command
                                 // here I need to do text analysis
-                                AbstractSelector tripSelector = new BoltNormal(getFullText());
-                                Boolean res = tripSelector.selectInput();
+//                                AbstractSelector tripSelector = new BoltNormal(getFullText());
+//                                Boolean res = tripSelector.selectInput();
+                                Log.d("reading text", "We use important data list");
+                                Log.d("reading text","list size= "+importantTextData.size() );
+                                Log.d("reading text",importantTextData.toString());
 
                                 lock.wait();
                                 // Wait for the command to finish
@@ -152,61 +156,6 @@ public class MyAccessibilityService extends AccessibilityService {
         return !text.isEmpty();  // Example: fail if text is empty
     }
 
-    public void simulateTouch(float x, float y, int duration, int timeUntilNextCommand, Runnable callback) {
-        MyLog.d(TAG, Thread.currentThread().getName());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Path path = new Path();
-            path.moveTo(x, y);
-            Log.d(TAG, "Path moved to x=" + x + ", y=" + y);
-            GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription(path, 0, duration);
-            GestureDescription gesture = new GestureDescription.Builder().addStroke(stroke).build();
-
-            boolean result = dispatchGesture(gesture, new GestureResultCallback() {
-                @Override
-                public void onCompleted(GestureDescription gestureDescription) {
-                    super.onCompleted(gestureDescription);
-                    Log.d(TAG, "Touch gesture completed");
-                    if (callback != null) {
-                        callback.run();
-                    }
-                    synchronized (lock) {
-                        lock.notify();
-                    }
-                }
-
-                @Override
-                public void onCancelled(GestureDescription gestureDescription) {
-                    super.onCancelled(gestureDescription);
-                    Log.d(TAG, "Touch gesture cancelled");
-                    if (callback != null) {
-                        callback.run();
-                    }
-                    synchronized (lock) {
-                        lock.notify();
-                    }
-                }
-            }, null);
-
-            if (!result) {
-                Log.e(TAG, "Gesture dispatch failed");
-                if (callback != null) {
-                    callback.run();
-                }
-                synchronized (lock) {
-                    lock.notify();
-                }
-            }
-        } else {
-            Log.e(TAG, "simulateTouch requires API level 24 or higher");
-            if (callback != null) {
-                callback.run();
-            }
-            synchronized (lock) {
-                lock.notify();
-            }
-        }
-    }
-
     public void extractTextFromRect(Rect targetRect, Runnable callback) {
         MyLog.d(TAG, Thread.currentThread().getName());
         handler.post(() -> {
@@ -234,6 +183,48 @@ public class MyAccessibilityService extends AccessibilityService {
         });
     }
 
+    private void textInDepth(AccessibilityNodeInfo node, int targetDepth, List<String> result) {
+        collectTextInDepth(node, 0, targetDepth, result);
+    }
+    private void collectTextInDepth(AccessibilityNodeInfo node, int currentDepth, int targetDepth, List<String> result) {
+        if (node == null) return;
+
+        if (currentDepth == targetDepth && node.getText() != null) {
+            result.add(node.getText().toString());
+            Log.d(TAG, "Node text at depth " + targetDepth + ": " + node.getText().toString());
+        }
+
+        for (int i = 0; i < node.getChildCount(); i++) {
+            AccessibilityNodeInfo childNode = node.getChild(i);
+            if (childNode != null) {
+                collectTextInDepth(childNode, currentDepth + 1, targetDepth, result);
+            }
+        }
+    }
+
+    public void extractAllTextInDepth(Runnable callback) {
+        handler.post(() -> {
+            AccessibilityNodeInfo rootNode = getRootInActiveWindow();
+            if (rootNode == null) {
+                Log.e(TAG, "Root node is null");
+                if (callback != null) {
+                    callback.run();
+                }
+                synchronized (lock) {
+                    lock.notify();
+                }
+                return;
+            }
+            importantTextData.clear(); // Clear previous data
+            textInDepth(rootNode, 5, importantTextData); // Collect data at depth 5
+            if (callback != null) {
+                callback.run();
+            }
+            synchronized (lock) {
+                lock.notify();
+            }
+        });
+    }
     public void extractAllText(Runnable callback) {
         handler.post(() -> {
             AccessibilityNodeInfo rootNode = getRootInActiveWindow();
@@ -316,6 +307,7 @@ public class MyAccessibilityService extends AccessibilityService {
     }
 
     // Method to traverse and log the view hierarchy
+
     private void debugViewHierarchy(AccessibilityNodeInfo node, int depth, StringBuilder result) {
         if (node == null) return;
 
@@ -333,20 +325,74 @@ public class MyAccessibilityService extends AccessibilityService {
             debugViewHierarchy(node.getChild(i), depth + 1, result);
         }
     }
-
     // Method to retrieve the view hierarchy text
+
     public String getDebugViewHierarchyText(AccessibilityNodeInfo rootNode) {
         StringBuilder result = new StringBuilder();
         debugViewHierarchy(rootNode, 0, result); // Start with depth 0
         return result.toString();
     }
-
     // Example method to demonstrate usage (can be triggered by an event)
+
     public void logViewHierarchy() {
         AccessibilityNodeInfo rootNode = getRootInActiveWindow();
         if (rootNode != null) {
             String viewHierarchy = getDebugViewHierarchyText(rootNode);
             Log.d(TAG, viewHierarchy);
+        }
+    }
+    public void simulateTouch(float x, float y, int duration, int timeUntilNextCommand, Runnable callback) {
+        MyLog.d(TAG, Thread.currentThread().getName());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Path path = new Path();
+            path.moveTo(x, y);
+            Log.d(TAG, "Path moved to x=" + x + ", y=" + y);
+            GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription(path, 0, duration);
+            GestureDescription gesture = new GestureDescription.Builder().addStroke(stroke).build();
+
+            boolean result = dispatchGesture(gesture, new GestureResultCallback() {
+                @Override
+                public void onCompleted(GestureDescription gestureDescription) {
+                    super.onCompleted(gestureDescription);
+                    Log.d(TAG, "Touch gesture completed");
+                    if (callback != null) {
+                        callback.run();
+                    }
+                    synchronized (lock) {
+                        lock.notify();
+                    }
+                }
+
+                @Override
+                public void onCancelled(GestureDescription gestureDescription) {
+                    super.onCancelled(gestureDescription);
+                    Log.d(TAG, "Touch gesture cancelled");
+                    if (callback != null) {
+                        callback.run();
+                    }
+                    synchronized (lock) {
+                        lock.notify();
+                    }
+                }
+            }, null);
+
+            if (!result) {
+                Log.e(TAG, "Gesture dispatch failed");
+                if (callback != null) {
+                    callback.run();
+                }
+                synchronized (lock) {
+                    lock.notify();
+                }
+            }
+        } else {
+            Log.e(TAG, "simulateTouch requires API level 24 or higher");
+            if (callback != null) {
+                callback.run();
+            }
+            synchronized (lock) {
+                lock.notify();
+            }
         }
     }
 
