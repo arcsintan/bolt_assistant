@@ -83,7 +83,7 @@ public class CircleView extends AbstractShapeView{
 
     @Override
     public void execute(MyAccessibilityService service) {
-        service.enqueueCommand(new SimulateTouchCommand(service, layoutParams.x+radius, layoutParams.y+radius+35, 45, timeUtilNextCommand));
+        service.addCommand(new SimulateTouchCommand(service, layoutParams.x+radius, layoutParams.y+radius+35, 45, timeUtilNextCommand));
     }
 
 
