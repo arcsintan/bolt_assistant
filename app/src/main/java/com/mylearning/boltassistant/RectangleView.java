@@ -65,7 +65,7 @@ public class RectangleView extends AbstractShapeView {
         Rect rect=new Rect(layoutParams.x, layoutParams.y, layoutParams.x+width, layoutParams.y+height);
         MyLog.d("ReadTextCommand", "called to execute the extract text from All view");
             //service.enqueueCommand(new ReadTextCommand(service, rect));
-            service.enqueueCommand(new ReadAllTextCommand(service));
+            service.addCommand(new ReadAllTextCommand(service));
     }
 
     @Override
