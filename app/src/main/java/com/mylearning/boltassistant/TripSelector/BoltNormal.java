@@ -1,15 +1,25 @@
 package com.mylearning.boltassistant.TripSelector;
 
+import android.os.Build;
+import android.util.Log;
+
 import com.mylearning.boltassistant.MyLog;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 public class BoltNormal implements AbstractSelector {
     final String TAG="BoltNormal";
     private String text;
+    List<String> importantTextData;
 
     public BoltNormal(String text) {
         this.text = text;
+    }
+
+    public BoltNormal(List<String> importantTextData) {
+        this.importantTextData=importantTextData;
     }
 
     @Override
@@ -23,48 +33,14 @@ public class BoltNormal implements AbstractSelector {
         MyLog.d(TAG, inputText);
 
     }
+    public void analyzeText(List<String> importantTextData) {
 
-    public static class TripData {
-        int km;
-        LocalDateTime now;
-
-        DateTimeFormatter reservationTime;
-        String pickup;
-        String dropoff;
-        String category;
-
-        public TripData(int km, LocalDateTime now, DateTimeFormatter reservationTime, String pickup, String dropoff, String category) {
-            this.km = km;
-            this.now = now;
-            this.reservationTime = reservationTime;
-            this.pickup = pickup;
-            this.dropoff = dropoff;
-            this.category = category;
+            Log.d(TAG, "A trip with 6 important data has been ordered");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            importantTextData.forEach(System.out::println);
         }
 
 
-        public int getKm() {
-            return km;
-        }
-
-        public LocalDateTime getNow() {
-            return now;
-        }
-
-        public DateTimeFormatter getReservationTime() {
-            return reservationTime;
-        }
-
-        public String getPickup() {
-            return pickup;
-        }
-
-        public String getDropoff() {
-            return dropoff;
-        }
-
-        public String getCategory() {
-            return category;
-        }
     }
+
 }

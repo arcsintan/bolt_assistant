@@ -116,8 +116,8 @@ public class MyAccessibilityService extends AccessibilityService {
                             synchronized (lock) {
                                 command.execute(); // Execute the command
                                 // here I need to do text analysis
-//                                AbstractSelector tripSelector = new BoltNormal(getFullText());
-//                                Boolean res = tripSelector.selectInput();
+                              AbstractSelector tripSelector = new BoltNormal(importantTextData);
+                                Boolean res = tripSelector.selectInput();
                                 Log.d("reading text", "We use important data list");
                                 Log.d("reading text","list size= "+importantTextData.size() );
                                 Log.d("reading text",importantTextData.toString());
