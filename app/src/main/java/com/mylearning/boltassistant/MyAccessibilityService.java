@@ -17,6 +17,7 @@ import com.mylearning.boltassistant.DataBase.TripDataManager;
 import com.mylearning.boltassistant.TripSelector.AbstractSelector;
 import com.mylearning.boltassistant.TripSelector.BoltNormal;
 import com.mylearning.boltassistant.TripSelector.TripData;
+import com.mylearning.boltassistant.TripSelector.TripDataParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -96,6 +97,7 @@ public class MyAccessibilityService extends AccessibilityService {
 
 
     public void executeAllCommands() {
+
         turnOnAllCommand();
         System.out.println("Size of the Queue = " + commandList.size());
         if (runningStatus) {
@@ -142,6 +144,7 @@ public class MyAccessibilityService extends AccessibilityService {
                                     AbstractSelector tripSelector = new BoltNormal(dataCopy);
                                     Boolean res = tripSelector.selectInput();
                                     tripData = tripSelector.getTripData();
+
                                     if (tripData == null) {
                                         Log.e(TAG, "TripData is null after parsing");
                                     }
