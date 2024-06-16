@@ -21,6 +21,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.mylearning.boltassistant.ShowDataBase.TripListActivity;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
@@ -30,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityResultLauncher<String> storagePermissionLauncher;
     // private ActivityResultLauncher<Intent> mediaProjectionLauncher; // Commented out
     private Button toggleOverlayButton;
+    private Button showTripsButton;
 
     // private MediaProjectionManager projectionManager; // Commented out
 
@@ -40,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
         toggleOverlayButton = findViewById(R.id.button_toggle_overlay);
         // projectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE); // Commented out
+        showTripsButton = findViewById(R.id.button_show_trips);
 
         toggleOverlayButton.setOnClickListener(v -> {
             if (isOverlayServiceRunning) {
@@ -47,6 +51,10 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 checkOverlayPermissionAndStartService();
             }
+        });
+        showTripsButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, TripListActivity.class);
+            startActivity(intent);
         });
 
         overlayPermissionLauncher = registerForActivityResult(

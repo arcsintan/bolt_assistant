@@ -1,5 +1,5 @@
 package com.mylearning.boltassistant.TripSelector;
-
+import java.util.Random;
 import java.util.Date;
 
 public class TripData {
@@ -25,7 +25,8 @@ public class TripData {
         this.addressStart = addressStart;
         this.addressEnd = addressEnd;
         this.timestamp = System.currentTimeMillis();
-        this.success = false;
+        Random random=new Random();
+        this.success = random.nextBoolean();
         this.platform = platform;
         this.tripType = tripType;
         this.quality = quality;
