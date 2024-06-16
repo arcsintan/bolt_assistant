@@ -2,6 +2,8 @@ package com.mylearning.boltassistant.TripSelector;
 
 import com.mylearning.boltassistant.MyLog;
 
+import java.util.List;
+
 public class BlindSelector implements AbstractSelector{
     String text;
     public BlindSelector(String text) {
@@ -17,6 +19,16 @@ public class BlindSelector implements AbstractSelector{
     public void analyzeText(String inputText) {
         MyLog.d("BlinedSelector", inputText);
 
+    }
+
+    @Override
+    public void analyzeText(List<String> inputText) {
+
+    }
+
+    @Override
+    public TripData getTripData() {
+        return null;
     }
 }
 

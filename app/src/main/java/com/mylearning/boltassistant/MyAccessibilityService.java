@@ -2,6 +2,7 @@ package com.mylearning.boltassistant;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Path;
 import android.graphics.Rect;
@@ -12,11 +13,18 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import com.mylearning.boltassistant.DataBase.TripDataManager;
 import com.mylearning.boltassistant.TripSelector.AbstractSelector;
 import com.mylearning.boltassistant.TripSelector.BoltNormal;
+import com.mylearning.boltassistant.TripSelector.TripData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+// Add a field for the ExecutorService
+
 
 public class MyAccessibilityService extends AccessibilityService {
     private static final String TAG = "MyAccessibilityService";
@@ -26,13 +34,14 @@ public class MyAccessibilityService extends AccessibilityService {
     private boolean debugMode = false;
 
     private StringBuilder fullText = new StringBuilder(); // Store the full extracted text
-    private final Object lock = new Object();
+    public Object lock = new Object();
     private StringBuilder allText = new StringBuilder();
 
     private volatile boolean shouldBeContinue = true;
     private volatile boolean runningStatus = false;
     private Thread commandThread; // The thread running the commands
     private List<String> importantTextData = new ArrayList<>();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Override
     public void onCreate() {
@@ -85,6 +94,7 @@ public class MyAccessibilityService extends AccessibilityService {
         commandList.add(command);
     }
 
+
     public void executeAllCommands() {
         turnOnAllCommand();
         System.out.println("Size of the Queue = " + commandList.size());
@@ -95,6 +105,7 @@ public class MyAccessibilityService extends AccessibilityService {
         runningStatus = true;
         commandThread = new Thread(() -> {
             while (shouldBeContinue) {
+                TripData tripData = null;
                 for (int i = 0; i < commandList.size(); i++) {
                     try {
                         if (!shouldBeContinue) {
@@ -105,6 +116,7 @@ public class MyAccessibilityService extends AccessibilityService {
                             long startTime = System.currentTimeMillis();
                             synchronized (lock) {
                                 command.execute(); // Execute the command
+                                Log.d(TAG, " Click at location " + i);
                                 lock.wait(); // Wait for the command to finish
                             }
                             long executionTime = System.currentTimeMillis() - startTime;
@@ -114,29 +126,75 @@ public class MyAccessibilityService extends AccessibilityService {
                             }
                         } else {
                             synchronized (lock) {
-                                command.execute(); // Execute the command
-                                // here I need to do text analysis
-                              AbstractSelector tripSelector = new BoltNormal(importantTextData);
-                                Boolean res = tripSelector.selectInput();
-                                Log.d("reading text", "We use important data list");
-                                Log.d("reading text","list size= "+importantTextData.size() );
-                                Log.d("reading text",importantTextData.toString());
+                                command.execute(); // Execute the command and wait for it to complete
+                                lock.wait(); // Wait for the command to finish
 
-                                lock.wait();
-                                // Wait for the command to finish
+                                // Now proceed with text analysis
+                                Log.d("reading text", "We use important data list");
+                                Log.d("reading text", "list size= " + importantTextData.size());
+                                Log.d("reading text", importantTextData.toString());
+                                Log.d("--------------", "--------------------------------------");
+                                if (importantTextData.size() < 4) break;
+
+                                try {
+                                    // Create a copy of the list to avoid ConcurrentModificationException
+                                    List<String> dataCopy = new ArrayList<>(importantTextData);
+                                    AbstractSelector tripSelector = new BoltNormal(dataCopy);
+                                    Boolean res = tripSelector.selectInput();
+                                    tripData = tripSelector.getTripData();
+                                    if (tripData == null) {
+                                        Log.e(TAG, "TripData is null after parsing");
+                                    }
+                                } catch (IndexOutOfBoundsException e) {
+                                    Log.e(TAG, "Error parsing importantTextData: " + e.getMessage());
+                                }
                             }
                         }
-
                     } catch (InterruptedException e) {
                         Log.e(TAG, "Command processing interrupted", e);
                         shouldBeContinue = false;
                         break; // Exit the loop if interrupted
                     }
                 }
+                if (tripData != null) {
+                    tripData.setQuality(4);
+                    Context context = MyAccessibilityService.getInstance(); // Get the service instance
+
+                    // Insert the trip data asynchronously
+                    TripData finalTripData = tripData; // Ensure it's effectively final
+                    executorService.submit(() -> {
+                        TripDataManager tripDataManager = new TripDataManager(context);
+                        tripDataManager.insertTripData(finalTripData);
+                        tripDataManager.close();
+                    });
+                }
             }
         });
         commandThread.start();
         runningStatus = false;
+    }
+
+
+    // Method to backup database
+    public void backupDatabase() {
+        TripDataManager tripDataManager = new TripDataManager(this);
+        if (tripDataManager.backupDatabase()) {
+            Log.d("MyAccessibilityService", "Database backup successful");
+        } else {
+            Log.e("MyAccessibilityService", "Database backup failed");
+        }
+        tripDataManager.close();
+    }
+
+    // Method to restore database
+    public void restoreDatabase(String backupFileName) {
+        TripDataManager tripDataManager = new TripDataManager(this);
+        if (tripDataManager.restoreDatabase(backupFileName)) {
+            Log.d("MyAccessibilityService", "Database restore successful");
+        } else {
+            Log.e("MyAccessibilityService", "Database restore failed");
+        }
+        tripDataManager.close();
     }
 
     public void stopAllCommands() {
@@ -210,9 +268,6 @@ public class MyAccessibilityService extends AccessibilityService {
                 if (callback != null) {
                     callback.run();
                 }
-                synchronized (lock) {
-                    lock.notify();
-                }
                 return;
             }
             importantTextData.clear(); // Clear previous data
@@ -220,11 +275,9 @@ public class MyAccessibilityService extends AccessibilityService {
             if (callback != null) {
                 callback.run();
             }
-            synchronized (lock) {
-                lock.notify();
-            }
         });
     }
+
     public void extractAllText(Runnable callback) {
         handler.post(() -> {
             AccessibilityNodeInfo rootNode = getRootInActiveWindow();
@@ -342,11 +395,11 @@ public class MyAccessibilityService extends AccessibilityService {
         }
     }
     public void simulateTouch(float x, float y, int duration, int timeUntilNextCommand, Runnable callback) {
-        MyLog.d(TAG, Thread.currentThread().getName());
+        Log.d(TAG, Thread.currentThread().getName());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Path path = new Path();
             path.moveTo(x, y);
-            Log.d(TAG, "Path moved to x=" + x + ", y=" + y);
+            //Log.d(TAG, "Path moved to x=" + x + ", y=" + y);
             GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription(path, 0, duration);
             GestureDescription gesture = new GestureDescription.Builder().addStroke(stroke).build();
 
@@ -354,7 +407,7 @@ public class MyAccessibilityService extends AccessibilityService {
                 @Override
                 public void onCompleted(GestureDescription gestureDescription) {
                     super.onCompleted(gestureDescription);
-                    Log.d(TAG, "Touch gesture completed");
+                    //Log.d(TAG, "Touch gesture completed");
                     if (callback != null) {
                         callback.run();
                     }

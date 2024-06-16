@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -89,14 +90,14 @@ public abstract class AbstractShapeView extends RelativeLayout {
     public boolean handleTouch(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                MyLog.d(TAG, "ACTION_DOWN case is running");
+                //MyLog.d(TAG, "ACTION_DOWN case is running");
                 initialX = layoutParams.x;
                 initialY = layoutParams.y;
                 initialTouchX = event.getRawX();
                 initialTouchY = event.getRawY();
                 return true;
             case MotionEvent.ACTION_MOVE:
-                MyLog.d(TAG, "ACTION_MOVE case is running");
+                //MyLog.d(TAG, "ACTION_MOVE case is running");
                 layoutParams.x = initialX + (int) (event.getRawX() - initialTouchX);
                 layoutParams.y = initialY + (int) (event.getRawY() - initialTouchY);
                 updateView();

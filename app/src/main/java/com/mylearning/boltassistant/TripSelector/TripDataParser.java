@@ -1,14 +1,25 @@
 package com.mylearning.boltassistant.TripSelector;
+
+import android.os.Build;
+
+import com.mylearning.boltassistant.MyLog;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
 public class TripDataParser {
+    public static String TAG="TripDataParser";
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd MMM, HH:mm");
 
     public static TripData parse(List<String> importantTextData) {
+        MyLog.d(TAG, "Parsing importantTextData: " + importantTextData.toString());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            importantTextData.forEach(data -> MyLog.d(TAG, "Data: " + data));
+        }
+
         // Extract day
         String day = importantTextData.get(0);
 
@@ -34,6 +45,11 @@ public class TripDataParser {
         String addressStart = importantTextData.get(4);
         String addressEnd = importantTextData.get(5);
 
-        return new TripData(day, price, pickupDateTime, category, distance, addressStart, addressEnd);
+        // For demonstration, assume platform and tripType are derived from some logic
+        int platform = 1; // Or some logic to determine platform
+        int tripType = 1; // Or some logic to determine trip type
+        int quality=4;
+
+        return new TripData(day, price, pickupDateTime, category, distance, addressStart, addressEnd, platform, tripType, quality);
     }
 }

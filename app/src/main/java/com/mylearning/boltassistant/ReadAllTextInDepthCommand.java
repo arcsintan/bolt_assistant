@@ -1,8 +1,7 @@
 package com.mylearning.boltassistant;
-
-public class ReadAllTextInDepthCommand implements Command{
-
+public class ReadAllTextInDepthCommand implements Command {
     private MyAccessibilityService service;
+
     public ReadAllTextInDepthCommand(MyAccessibilityService service) {
         this.service = service;
     }
@@ -12,7 +11,9 @@ public class ReadAllTextInDepthCommand implements Command{
         service.extractAllTextInDepth(new Runnable() {
             @Override
             public void run() {
-
+                synchronized (service.lock) {
+                    service.lock.notify(); // Notify the waiting thread that the operation is complete
+                }
             }
         });
     }
