@@ -1,10 +1,14 @@
 package com.mylearning.boltassistant;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -21,6 +25,16 @@ public abstract class AbstractShapeView extends RelativeLayout {
     private int initialX, initialY;
     private float initialTouchX, initialTouchY;
 
+    private GestureDetector gestureDetector;
+
+    // BroadcastReceiver for receiving updated values
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            handleBroadcast(intent);
+        }
+    };
+
     public AbstractShapeView(Context context, int x, int y) {
         super(context);
         init(context, x, y);
@@ -30,7 +44,6 @@ public abstract class AbstractShapeView extends RelativeLayout {
         super(context, attrs);
         init(context, 0, 0);
     }
-
 
     private void init(Context context, int x, int y) {
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -47,13 +60,54 @@ public abstract class AbstractShapeView extends RelativeLayout {
         layoutParams.x = x;
         layoutParams.y = y;
 
+        gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public void onLongPress(MotionEvent e) {
+                Log.d(TAG, "onLongPress event triggered");
+                handleLongTouch();
+            }
+
+            @Override
+            public boolean onSingleTapUp(MotionEvent e) {
+                Log.d(TAG, "onSingleTapUp event triggered");
+                return super.onSingleTapUp(e);
+            }
+        });
+
         setOnTouchListener(new OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                return handleTouch(event);
+                gestureDetector.onTouchEvent(event);
+
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        Log.d(TAG, "ACTION_DOWN event triggered");
+                        initialX = layoutParams.x;
+                        initialY = layoutParams.y;
+                        initialTouchX = event.getRawX();
+                        initialTouchY = event.getRawY();
+                        return true;
+                    case MotionEvent.ACTION_MOVE:
+                        Log.d(TAG, "ACTION_MOVE event triggered");
+                        layoutParams.x = initialX + (int) (event.getRawX() - initialTouchX);
+                        layoutParams.y = initialY + (int) (event.getRawY() - initialTouchY);
+                        updateView();
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        Log.d(TAG, "ACTION_UP or ACTION_CANCEL event triggered");
+                        return true;
+                }
+                return false;
             }
         });
+
+        // Register BroadcastReceiver
+        IntentFilter filter = new IntentFilter(getBroadcastAction());
+        context.registerReceiver(broadcastReceiver, filter);
     }
+
+
 
     protected void inflateLayout(int layoutRes) {
         LayoutInflater.from(getContext()).inflate(layoutRes, this, true);
@@ -87,33 +141,24 @@ public abstract class AbstractShapeView extends RelativeLayout {
         updateView();
     }
 
-    public boolean handleTouch(MotionEvent event) {
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                //MyLog.d(TAG, "ACTION_DOWN case is running");
-                initialX = layoutParams.x;
-                initialY = layoutParams.y;
-                initialTouchX = event.getRawX();
-                initialTouchY = event.getRawY();
-                return true;
-            case MotionEvent.ACTION_MOVE:
-                //MyLog.d(TAG, "ACTION_MOVE case is running");
-                layoutParams.x = initialX + (int) (event.getRawX() - initialTouchX);
-                layoutParams.y = initialY + (int) (event.getRawY() - initialTouchY);
-                updateView();
-                return true;
-            case MotionEvent.ACTION_UP:
-            case MotionEvent.ACTION_CANCEL:
-                return true;
-        }
-        return false;
-    }
-
     public abstract int getViewWidth();
-
     public abstract int getViewHeight();
     public abstract void execute(MyAccessibilityService service);
     public abstract String toJson();
     abstract String getType();
 
+    public abstract void handleLongTouch();
+    protected abstract String getBroadcastAction();
+
+    protected abstract void handleBroadcast(Intent intent);
+    protected void unregisterBroadcastReceiver(Context context) {
+        context.unregisterReceiver(broadcastReceiver);
+    }
+
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        unregisterBroadcastReceiver(getContext());
+    }
 }
