@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import com.google.gson.Gson;
 
+import java.util.Random;
+
 public class CircleView extends AbstractShapeView {
     private final String TAG = "CircleView";
     private int index;
@@ -17,6 +19,8 @@ public class CircleView extends AbstractShapeView {
     private int duration;
     private int timeUntilNextCommand;
     private int centerX, centerY;
+
+
 
 
 
@@ -32,13 +36,14 @@ public class CircleView extends AbstractShapeView {
 
     @Override
     public void handleBroadcast(Intent intent) {
-        if (intent != null) {
+        if (intent != null && intent.getIntExtra(SetCircleValuesActivity.ACTION_ID, 1)==uniq_id) {
             int newDuration = intent.getIntExtra(SetCircleValuesActivity.EXTRA_DURATION, duration);
             int newTimeUntilNextCommand = intent.getIntExtra(SetCircleValuesActivity.EXTRA_TIME_UNTIL_NEXT_COMMAND, timeUntilNextCommand);
             updateValues(newDuration, newTimeUntilNextCommand);
         }else{
             Log.e(TAG, "A null intent received from SetCircleValuesActivity");
         }
+
     }
 
     public CircleView(Context context, CircleData circleData) {
@@ -52,7 +57,7 @@ public class CircleView extends AbstractShapeView {
 
     @Override
     protected String getBroadcastAction() {
-            return SetCircleValuesActivity.ACTION_UPDATE_VALUES;
+        return SetCircleValuesActivity.ACTION_UPDATE_VALUES;
     }
 
 
@@ -82,11 +87,14 @@ public class CircleView extends AbstractShapeView {
     }
 
     private void launchSetValuesActivity() {
+        setUniqID();
         Log.d(TAG, this.toString());
         Context context = getContext();
         Intent intent = new Intent(context, SetCircleValuesActivity.class);
         intent.putExtra(SetCircleValuesActivity.EXTRA_DURATION, duration);
         intent.putExtra(SetCircleValuesActivity.EXTRA_TIME_UNTIL_NEXT_COMMAND, timeUntilNextCommand);
+        intent.putExtra(SetCircleValuesActivity.ACTION_INDEX, index);
+        intent.putExtra(SetCircleValuesActivity.ACTION_ID, uniq_id);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
@@ -122,11 +130,16 @@ public class CircleView extends AbstractShapeView {
         layoutParams.y = y;
         updateView();
     }
-
-    public boolean isTouched(int touchX, int touchY) {
-        int dx = touchX - (getShapeX() + radius);
-        int dy = touchY - (getShapeY() + radius);
+@Override
+    protected boolean isTouched(float touchX, float touchY) {
+        float dx = touchX - (getShapeX() + radius);
+        float dy = touchY - (getShapeY() + radius);
         return dx * dx + dy * dy <= radius * radius;
+    }
+
+    @Override
+    protected void setUniqID() {
+        uniq_id= rn_gen.nextInt();
     }
 
     @Override

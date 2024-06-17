@@ -153,14 +153,14 @@ public class OverlayService extends Service {
     }
 
     private void handleAddCircleButtonClick() {
-        CircleView newCircle = new CircleView(getApplicationContext(), centerX, centerY, 50, 10, 69, shapeViews.size() + 1);
+        CircleView newCircle = new CircleView(getApplicationContext(), centerX, centerY, 50, 40, 69, shapeViews.size() + 1);
         shapeViews.add(newCircle);
         addShapeView(newCircle);
         Log.d(TAG, "Add Button clicked, new circle added");
     }
 
     private void handleAddRectangleButtonClick() {
-        RectangleView newRectangle = new RectangleView(getApplicationContext(), centerX, centerY, 280, 140, shapeViews.size() + 1);
+        RectangleView newRectangle = new RectangleView(getApplicationContext(), centerX, centerY, 400, 200, shapeViews.size() + 1);
         shapeViews.add(newRectangle);
         addShapeView(newRectangle);
         Log.d(TAG, "Rotate Button clicked, new rectangle added");

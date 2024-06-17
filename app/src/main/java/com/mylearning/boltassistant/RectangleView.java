@@ -26,6 +26,10 @@ public class RectangleView extends AbstractShapeView {
     private String pickup;
     private String dropoff;
 
+
+
+
+
     public RectangleView(Context context, int x, int y, int width, int height, int index) {
         super(context, x, y);
         this.index = index;
@@ -77,6 +81,7 @@ public class RectangleView extends AbstractShapeView {
     }
 
     private void launchSetValuesActivity() {
+        setUniqID();
         Context context = getContext();
         Intent intent = new Intent(context, SetRectangleValuesActivity.class);
         intent.putExtra(SetRectangleValuesActivity.EXTRA_DATE, date.getTime());
@@ -88,6 +93,7 @@ public class RectangleView extends AbstractShapeView {
         intent.putExtra(SetRectangleValuesActivity.EXTRA_DROPOFF, dropoff);
         intent.putExtra(SetRectangleValuesActivity.EXTRA_WIDTH, width);
         intent.putExtra(SetRectangleValuesActivity.EXTRA_HEIGHT, height);
+        intent.putExtra(SetRectangleValuesActivity.ACTION_ID, uniq_id);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
@@ -98,7 +104,7 @@ public class RectangleView extends AbstractShapeView {
 
     @Override
     protected void handleBroadcast(Intent intent) {
-        if (intent.getAction() != null && intent.getAction().equals(SetRectangleValuesActivity.ACTION_UPDATE_VALUES)) {
+        if (intent.getAction() != null && intent.getIntExtra(SetRectangleValuesActivity.ACTION_ID,1)==uniq_id) {
             Log.d(TAG, "A broadcast recieved to update the value of the Rectangle Data");
             date = new Date(intent.getLongExtra(SetRectangleValuesActivity.EXTRA_DATE, new Date().getTime()));
             time = new Date(intent.getLongExtra(SetRectangleValuesActivity.EXTRA_TIME, new Date().getTime()));
@@ -118,6 +124,17 @@ public class RectangleView extends AbstractShapeView {
 
         }
     }
+
+    @Override
+    public boolean isTouched(float touchX, float touchY) {
+        return touchX >= getShapeX() && touchX <= getShapeX() + width && touchY >= getShapeY() && touchY <= getShapeX() + height;
+    }
+
+    @Override
+    protected void setUniqID() {
+        uniq_id=rn_gen.nextInt();
+    }
+
 
     private void updateViewData(int newWidth, int newHeight) {
         setShapeWidth(newWidth);

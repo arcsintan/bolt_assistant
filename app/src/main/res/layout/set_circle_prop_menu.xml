@@ -5,16 +5,33 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="#FFFFFF">
-
-    <TextView
-        android:id="@+id/title_text"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:text="Set Values"
-        android:textStyle="bold"
+        android:orientation="horizontal"
         android:layout_gravity="center_horizontal"
-        android:paddingBottom="16dp" />
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/circle_in_menu"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/circle_shape"
+            android:text="1"
+            android:gravity="center"
+            android:textColor="@color/red" />
+
+        <TextView
+            android:id="@+id/title_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="1dp"
+            android:text="Set Values"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"

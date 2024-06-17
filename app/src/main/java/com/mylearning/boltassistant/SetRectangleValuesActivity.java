@@ -31,6 +31,8 @@ public class SetRectangleValuesActivity extends Activity {
     public static final String EXTRA_WIDTH = "com.mylearning.boltassistant.WIDTH";
     public static final String EXTRA_HEIGHT = "com.mylearning.boltassistant.HEIGHT";
     public static final String ACTION_UPDATE_VALUES = "com.mylearning.boltassistant.ACTION_UPDATE_VALUES";
+    public static final String ACTION_ID = "com.mylearning.boltassistant.ACTION_ID";
+    public static int random_number;
 
     private EditText dateEditText;
     private EditText timeEditText;
@@ -96,6 +98,7 @@ public class SetRectangleValuesActivity extends Activity {
             String dropoff = intent.getStringExtra(EXTRA_DROPOFF);
             int width = intent.getIntExtra(EXTRA_WIDTH, 100);
             int height = intent.getIntExtra(EXTRA_HEIGHT, 50);
+            random_number=intent.getIntExtra(ACTION_ID, 1);
 
             Date date = new Date(dateMillis);
             Date time = new Date(timeMillis);
@@ -164,6 +167,7 @@ public class SetRectangleValuesActivity extends Activity {
             resultIntent.putExtra(EXTRA_DROPOFF, dropoff);
             resultIntent.putExtra(EXTRA_WIDTH, width);
             resultIntent.putExtra(EXTRA_HEIGHT, height);
+            resultIntent.putExtra(ACTION_ID, random_number);
 
             // Broadcast the intent
             sendBroadcast(resultIntent);

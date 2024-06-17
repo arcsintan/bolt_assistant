@@ -16,6 +16,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
 
+import java.util.Random;
+
 public abstract class AbstractShapeView extends RelativeLayout {
     final String TAG = "AbstractShapeView";
     protected WindowManager windowManager;
@@ -24,16 +26,21 @@ public abstract class AbstractShapeView extends RelativeLayout {
 
     private int initialX, initialY;
     private float initialTouchX, initialTouchY;
-
+    protected Random rn_gen=new Random();
+    protected int uniq_id;
     private GestureDetector gestureDetector;
+
 
     // BroadcastReceiver for receiving updated values
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "The ocReceive method of abstractShapeView Called");
             handleBroadcast(intent);
         }
     };
+
+
 
     public AbstractShapeView(Context context, int x, int y) {
         super(context);
@@ -86,6 +93,7 @@ public abstract class AbstractShapeView extends RelativeLayout {
                         initialY = layoutParams.y;
                         initialTouchX = event.getRawX();
                         initialTouchY = event.getRawY();
+
                         return true;
                     case MotionEvent.ACTION_MOVE:
                         Log.d(TAG, "ACTION_MOVE event triggered");
@@ -154,7 +162,8 @@ public abstract class AbstractShapeView extends RelativeLayout {
     protected void unregisterBroadcastReceiver(Context context) {
         context.unregisterReceiver(broadcastReceiver);
     }
-
+    protected abstract boolean isTouched(float x, float y);
+protected abstract void setUniqID();
 
     @Override
     protected void onDetachedFromWindow() {
