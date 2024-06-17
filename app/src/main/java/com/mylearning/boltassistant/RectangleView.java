@@ -1,30 +1,58 @@
 package com.mylearning.boltassistant;
-import android.graphics.Rect;
+
 import android.content.Context;
+import android.content.Intent;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
 
+import java.util.Date;
+
 public class RectangleView extends AbstractShapeView {
 
+    private static final int REQUEST_SET_VALUES = 2;
+    private final String TAG = "RectangleView";
     private int index;
     private int width, height;
-    private final String type=ShapeViewType.RECTANGLE.toString();
+    private String type = ShapeViewType.RECTANGLE.toString();
+    private Date date;
+    private Date time;
+    private String category;
+    private float km;
+    private float price;
+    private String pickup;
+    private String dropoff;
 
     public RectangleView(Context context, int x, int y, int width, int height, int index) {
         super(context, x, y);
         this.index = index;
         this.width = width;
         this.height = height;
+        this.date = new Date();
+        this.time = new Date();
+        this.category = "bolt";
+        this.km =7;
+        this.price = 12;
+        this.pickup = "Lisbon";
+        this.dropoff ="Lisbon";
         init();
     }
+
     public RectangleView(Context context, RectangleData rectangleData) {
         this(context, rectangleData.getX(), rectangleData.getY(), rectangleData.getWidth(), rectangleData.getHeight(), rectangleData.getIndex());
+        this.date = rectangleData.getDate();
+        this.time = rectangleData.getTime();
+        this.category = rectangleData.getCategory();
+        this.km = rectangleData.getKm();
+        this.price = rectangleData.getPrice();
+        this.pickup = rectangleData.getPickup();
+        this.dropoff = rectangleData.getDropoff();
     }
 
-    public RectangleView(Context context,int x, int y,  AttributeSet attrs) {
+    public RectangleView(Context context, int x, int y, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
@@ -37,12 +65,70 @@ public class RectangleView extends AbstractShapeView {
         View rectangleView = findViewById(R.id.rectangle);
         rectangleView.getLayoutParams().width = width;
         rectangleView.getLayoutParams().height = height;
-         rectangleView.requestLayout();
+        rectangleView.requestLayout();
+
+        setOnLongClickListener(new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                launchSetValuesActivity();
+                return true;
+            }
+        });
+    }
+
+    private void launchSetValuesActivity() {
+        Context context = getContext();
+        Intent intent = new Intent(context, SetRectangleValuesActivity.class);
+        intent.putExtra(SetRectangleValuesActivity.EXTRA_DATE, date.getTime());
+        intent.putExtra(SetRectangleValuesActivity.EXTRA_TIME, time.getTime());
+        intent.putExtra(SetRectangleValuesActivity.EXTRA_CATEGORY, category);
+        intent.putExtra(SetRectangleValuesActivity.EXTRA_KM, km);
+        intent.putExtra(SetRectangleValuesActivity.EXTRA_PRICE, price);
+        intent.putExtra(SetRectangleValuesActivity.EXTRA_PICKUP, pickup);
+        intent.putExtra(SetRectangleValuesActivity.EXTRA_DROPOFF, dropoff);
+        intent.putExtra(SetRectangleValuesActivity.EXTRA_WIDTH, width);
+        intent.putExtra(SetRectangleValuesActivity.EXTRA_HEIGHT, height);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
+    @Override
+    protected String getBroadcastAction() {
+        return SetRectangleValuesActivity.ACTION_UPDATE_VALUES;
     }
 
     @Override
-    String getType() {
-        return type;
+    protected void handleBroadcast(Intent intent) {
+        if (intent.getAction() != null && intent.getAction().equals(SetRectangleValuesActivity.ACTION_UPDATE_VALUES)) {
+            Log.d(TAG, "A broadcast recieved to update the value of the Rectangle Data");
+            date = new Date(intent.getLongExtra(SetRectangleValuesActivity.EXTRA_DATE, new Date().getTime()));
+            time = new Date(intent.getLongExtra(SetRectangleValuesActivity.EXTRA_TIME, new Date().getTime()));
+            category = intent.getStringExtra(SetRectangleValuesActivity.EXTRA_CATEGORY);
+            km = intent.getFloatExtra(SetRectangleValuesActivity.EXTRA_KM, 0.0f);
+            price = intent.getFloatExtra(SetRectangleValuesActivity.EXTRA_PRICE, 0.0f);
+            pickup = intent.getStringExtra(SetRectangleValuesActivity.EXTRA_PICKUP);
+            dropoff = intent.getStringExtra(SetRectangleValuesActivity.EXTRA_DROPOFF);
+            int newWidth = intent.getIntExtra(SetRectangleValuesActivity.EXTRA_WIDTH, 100);
+            int newHeight = intent.getIntExtra(SetRectangleValuesActivity.EXTRA_HEIGHT, 50);
+            if(newWidth!=width || newHeight!=height){
+                updateViewData(newWidth,newHeight);
+                width=newWidth;
+                height=newHeight;
+            }
+
+
+        }
+    }
+
+    private void updateViewData(int newWidth, int newHeight) {
+        setShapeWidth(newWidth);
+        setShapeHeight(newHeight);
+
+    }
+
+    @Override
+    public void handleLongTouch() {
+        Log.d(TAG, "handleLongTouch event triggered");
+        launchSetValuesActivity();
     }
 
     public int getViewWidth() {
@@ -60,40 +146,56 @@ public class RectangleView extends AbstractShapeView {
         return height;
     }
 
-    @Override
-    public void execute(MyAccessibilityService service) {
-        Rect rect=new Rect(layoutParams.x, layoutParams.y, layoutParams.x+width, layoutParams.y+height);
-        MyLog.d("ReadTextCommand", "called to execute the extract text from All view");
-            //service.enqueueCommand(new ReadTextCommand(service, rect));
-            //service.addCommand(new ReadAllTextCommand(service));
-        service.addCommand(new ReadAllTextInDepthCommand(service));
-    }
-
-    @Override
-    public String toJson() {
-        Gson gson = new Gson();
-        RectangleData rectangleData = new RectangleData(layoutParams.x, layoutParams.y, width, height,  index, type);
-        return gson.toJson(rectangleData);
-    }
-
-
-
-    @Override
-    public String toString(){
-        return "Rectangle["+index+"]("+layoutParams.x+", "+layoutParams.y+", "+width+", "+height+")";
-    }
-
-    public boolean isTouched(int touchX, int touchY) {
-        return touchX >= getShapeX() && touchX <= getShapeX() + width && touchY >= getShapeY() && touchY <= getShapeY() + height;
-    }
     public void setShapeHeight(int height) {
         this.height = height;
         View rectangleView = findViewById(R.id.rectangle);
         rectangleView.getLayoutParams().height = height;
         rectangleView.requestLayout();
     }
-    public int getIndex() {
-        return index;
+
+
+
+    public int getShapeX() {
+        return layoutParams.x;
     }
 
+    public void setShapeX(int x) {
+        layoutParams.x = x;
+        updateView();
+    }
+
+    public int getShapeY() {
+        return layoutParams.y;
+    }
+
+    public void setShapeY(int y) {
+        layoutParams.y = y;
+        updateView();
+    }
+
+    public boolean isTouched(int touchX, int touchY) {
+        return touchX >= getShapeX() && touchX <= getShapeX() + width && touchY >= getShapeY() && touchY <= getShapeY() + height;
+    }
+
+    @Override
+    public String toJson() {
+        Gson gson = new Gson();
+        RectangleData rectangleData = new RectangleData(layoutParams.x, layoutParams.y, width, height, index, type, date, time, category, km, price, pickup, dropoff);
+        return gson.toJson(rectangleData);
+    }
+
+    @Override
+    String getType() {
+        return type;
+    }
+
+    @Override
+    public void execute(MyAccessibilityService service) {
+        // Your execution logic here
+    }
+
+    @Override
+    public String toString() {
+        return "Rectangle[" + index + "](" + layoutParams.x + ", " + layoutParams.y + ", " + width + ", " + height + ")";
+    }
 }

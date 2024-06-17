@@ -14,5 +14,20 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowFullscreen">true</item>
     </style>
+    <!-- Custom style for small activity window -->
+    <style name="SmallActivityTheme" parent="Theme.AppCompat.Dialog">
+        <item name="android:windowMinWidthMajor">75%</item>
+        <item name="android:windowMinWidthMinor">75%</item>
+        <item name="android:windowBackground">@android:color/white</item>
+    </style>
+    <!-- Custom theme for small activity -->
+    <style name="AllSmallActivityTheme" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowMinWidthMajor">90%</item>
+        <item name="android:windowMinWidthMinor">90%</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
 
 </resources>

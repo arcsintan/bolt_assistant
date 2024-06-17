@@ -22,4 +22,13 @@
     <string name="select_a_configuration">Select a configuration</string>
     <string name="or">OR</string>
 
+    <!-- Add the following lines -->
+    <string-array name="category_array">
+        <item>bolt</item>
+        <item>XL</item>
+        <item>Black</item>
+        <item>Comfort</item>
+        <item>all</item>
+    </string-array>
+
 </resources>
