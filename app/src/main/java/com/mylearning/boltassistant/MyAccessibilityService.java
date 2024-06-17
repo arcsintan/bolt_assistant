@@ -106,7 +106,7 @@ public class MyAccessibilityService extends AccessibilityService {
         }
         runningStatus = true;
         commandThread = new Thread(() -> {
-            while (shouldBeContinue) {
+            while (shouldBeContinue && !Thread.currentThread().isInterrupted()) {
                 TripData tripData = null;
                 for (int i = 0; i < commandList.size(); i++) {
                     try {
