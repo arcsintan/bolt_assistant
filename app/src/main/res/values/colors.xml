@@ -13,4 +13,6 @@
     <color name="light_blue">#0C87AF</color>
     <color name="red">#FF0000</color>
     <color name="ligth_red">#FFEB3B</color>
+    <color name="happy_green">#D6FD59</color>
+    <color name="happy_red">#FA847B</color>
 </resources>

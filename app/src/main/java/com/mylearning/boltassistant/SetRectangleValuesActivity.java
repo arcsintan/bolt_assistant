@@ -47,7 +47,7 @@ public class SetRectangleValuesActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_set_rectangle_values);
+        setContentView(R.layout.set_rectangle_prop_menu);
 
         dateEditText = findViewById(R.id.date_edit_text);
         timeEditText = findViewById(R.id.time_edit_text);

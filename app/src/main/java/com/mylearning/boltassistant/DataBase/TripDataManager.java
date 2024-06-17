@@ -55,6 +55,7 @@ public class TripDataManager {
 
         if (cursor.moveToFirst()) {
             do {
+                long id = getLongFromCursor(cursor, TripDatabaseHelper.COLUMN_ID); // Retrieve the ID
                 String day = getStringFromCursor(cursor, TripDatabaseHelper.COLUMN_DAY);
                 float price = getFloatFromCursor(cursor, TripDatabaseHelper.COLUMN_PRICE);
                 long pickupDateTimeMillis = getLongFromCursor(cursor, TripDatabaseHelper.COLUMN_PICKUP_DATETIME);
@@ -69,7 +70,43 @@ public class TripDataManager {
                 int quality = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_QUALITY); // New column
 
                 Date pickupDateTime = new Date(pickupDateTimeMillis);
-                TripData tripData = new TripData(day, price, pickupDateTime, category, distance, addressStart, addressEnd, platform, tripType, quality);
+                TripData tripData = new TripData(id, day, price, pickupDateTime, category, distance, addressStart, addressEnd, platform, tripType, quality);
+                tripData.setTimestamp(timestamp);
+                tripData.setSuccess(success);
+
+                tripDataList.add(tripData);
+            } while (cursor.moveToNext());
+        }
+
+        cursor.close();
+        return tripDataList;
+    }
+
+    public List<TripData> getTripsBetweenDates(Date startDate, Date endDate) {
+        List<TripData> tripDataList = new ArrayList<>();
+        String selection = TripDatabaseHelper.COLUMN_PICKUP_DATETIME + " BETWEEN ? AND ?";
+        String[] selectionArgs = {String.valueOf(startDate.getTime()), String.valueOf(endDate.getTime())};
+
+        Cursor cursor = database.query(TripDatabaseHelper.TABLE_NAME, null, selection, selectionArgs, null, null, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                long id = getLongFromCursor(cursor, TripDatabaseHelper.COLUMN_ID); // Retrieve the ID
+                String day = getStringFromCursor(cursor, TripDatabaseHelper.COLUMN_DAY);
+                float price = getFloatFromCursor(cursor, TripDatabaseHelper.COLUMN_PRICE);
+                long pickupDateTimeMillis = getLongFromCursor(cursor, TripDatabaseHelper.COLUMN_PICKUP_DATETIME);
+                String category = getStringFromCursor(cursor, TripDatabaseHelper.COLUMN_CATEGORY);
+                float distance = getFloatFromCursor(cursor, TripDatabaseHelper.COLUMN_DISTANCE);
+                String addressStart = getStringFromCursor(cursor, TripDatabaseHelper.COLUMN_ADDRESS_START);
+                String addressEnd = getStringFromCursor(cursor, TripDatabaseHelper.COLUMN_ADDRESS_END);
+                long timestamp = getLongFromCursor(cursor, TripDatabaseHelper.COLUMN_TIMESTAMP);
+                boolean success = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_SUCCESS) == 1;
+                int platform = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_PLATFORM);
+                int tripType = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_TRIP_TYPE);
+                int quality = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_QUALITY); // New column
+
+                Date pickupDateTime = new Date(pickupDateTimeMillis);
+                TripData tripData = new TripData(id, day, price, pickupDateTime, category, distance, addressStart, addressEnd, platform, tripType, quality);
                 tripData.setSuccess(success);
 
                 tripDataList.add(tripData);
@@ -139,6 +176,9 @@ public class TripDataManager {
             return false;
         }
     }
+    public long deleteTripData(long id) {
+        return database.delete(TripDatabaseHelper.TABLE_NAME, TripDatabaseHelper.COLUMN_ID + "=?", new String[]{String.valueOf(id)});
+    }
 
     public boolean restoreDatabase(String backupFileName) {
         File backupDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "TripDataBackup");
@@ -155,4 +195,8 @@ public class TripDataManager {
             return false;
         }
     }
+    public void deleteAllTripData() {
+        database.delete(TripDatabaseHelper.TABLE_NAME, null, null);
+    }
+
 }

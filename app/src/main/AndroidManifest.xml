@@ -29,6 +29,14 @@
             android:name=".ShowDataBase.TripListActivity"
             android:label="Trip List"
             android:exported="true" />
+        <activity android:name=".SetCircleValuesActivity"
+            android:noHistory="true"
+        android:theme="@style/SmallActivityTheme" />
+        <activity android:name=".SetRectangleValuesActivity"
+            android:noHistory="true"
+            android:theme="@style/AllSmallActivityTheme"
+            />
+
         <service
             android:name=".OverlayService"
             android:permission="android.permission.SYSTEM_ALERT_WINDOW"

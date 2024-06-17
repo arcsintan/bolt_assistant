@@ -21,7 +21,7 @@ public class SetCircleValuesActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_set_values);
+        setContentView(R.layout.set_circle_prop_menu);
 
         durationEditText = findViewById(R.id.duration_edit_text);
         timeUntilNextCommandEditText = findViewById(R.id.time_until_next_command_edit_text);

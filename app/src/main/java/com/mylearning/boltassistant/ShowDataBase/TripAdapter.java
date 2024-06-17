@@ -9,9 +9,9 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.provider.CalendarContract;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.mylearning.boltassistant.DataBase.TripDataManager;
 import com.mylearning.boltassistant.R;
 import com.mylearning.boltassistant.TripSelector.TripData;
 
@@ -32,15 +33,17 @@ import java.util.Locale;
 public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder> {
     private final List<TripData> tripDataList;
     private final OnItemClickListener listener;
+    private final Context context;
 
     public interface OnItemClickListener {
         void onItemClick(String addressStart, String addressEnd);
     }
 
-    public TripAdapter(List<TripData> tripDataList, OnItemClickListener listener) {
+    public TripAdapter(List<TripData> tripDataList, OnItemClickListener listener, Context context) {
         Collections.reverse(tripDataList); // Reverse the list to show the last entered data first
         this.tripDataList = tripDataList;
         this.listener = listener;
+        this.context = context;
     }
 
     @NonNull
@@ -54,6 +57,48 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
     public void onBindViewHolder(@NonNull TripViewHolder holder, int position) {
         TripData tripData = tripDataList.get(position);
         holder.bind(tripData, listener);
+
+        holder.itemView.setOnCreateContextMenuListener((menu, v, menuInfo) -> {
+            MenuInflater inflater = new MenuInflater(v.getContext());
+            inflater.inflate(R.menu.menu_trip_options, menu);
+
+            menu.findItem(R.id.action_copy).setOnMenuItemClickListener(item -> {
+                copyToClipboard(v.getContext(), tripData);
+                return true;
+            });
+
+            menu.findItem(R.id.action_delete).setOnMenuItemClickListener(item -> {
+                deleteTripData(tripData, position);
+                return true;
+            });
+        });
+    }
+
+    private void deleteTripData(TripData tripData, int position) {
+        TripDataManager tripDataManager = new TripDataManager(context);
+        tripDataManager.deleteTripData(tripData.getId());
+        tripDataList.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    private void copyToClipboard(Context context, TripData tripData) {
+        ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+        String tripDataString = String.format("Pickup DateTime: %s\nTimestamp: %s\nCategory: %s\nDistance: %.2f km\nNet Price: €%.2f\nNet Price per Distance: €%.2f/km\nPickup Point: %s\nDropoff Point: %s",
+                new SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault()).format(tripData.getPickupDateTime()),
+                new SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault()).format(new Date(tripData.getTimestamp())),
+                tripData.getCategory(),
+                tripData.getDistance(),
+                tripData.getPrice() * 0.75f,
+                (tripData.getPrice() * 0.75f) / tripData.getDistance(),
+                tripData.getAddressStart(),
+                tripData.getAddressEnd());
+        ClipData clip = ClipData.newPlainText("Trip Data", tripDataString);
+        if (clipboard != null) {
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(context, "Trip data copied to clipboard", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(context, "Failed to copy trip data", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -127,9 +172,9 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
             addressStartTextView.setOnClickListener(v -> openLocationInMap(v.getContext(), tripData.getAddressStart()));
             addressEndTextView.setOnClickListener(v -> openLocationInMap(v.getContext(), tripData.getAddressEnd()));
 
-            // Set long press listener to copy data to clipboard
+            // Set long press listener to show context menu
             itemView.setOnLongClickListener(v -> {
-                copyToClipboard(v.getContext(), tripData);
+                v.showContextMenu();
                 return true;
             });
         }
@@ -171,26 +216,6 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
                 context.startActivity(intent);
             } else {
                 Toast.makeText(context, "No calendar app found", Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        private void copyToClipboard(Context context, TripData tripData) {
-            ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-            String tripDataString = String.format("Pickup DateTime: %s\nTimestamp: %s\nCategory: %s\nDistance: %.2f km\nNet Price: €%.2f\nNet Price per Distance: €%.2f/km\nPickup Point: %s\nDropoff Point: %s",
-                    new SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault()).format(tripData.getPickupDateTime()),
-                    new SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault()).format(new Date(tripData.getTimestamp())),
-                    tripData.getCategory(),
-                    tripData.getDistance(),
-                    tripData.getPrice() * 0.75f,
-                    (tripData.getPrice() * 0.75f) / tripData.getDistance(),
-                    tripData.getAddressStart(),
-                    tripData.getAddressEnd());
-            ClipData clip = ClipData.newPlainText("Trip Data", tripDataString);
-            if (clipboard != null) {
-                clipboard.setPrimaryClip(clip);
-                Toast.makeText(context, "Trip data copied to clipboard", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(context, "Failed to copy trip data", Toast.LENGTH_SHORT).show();
             }
         }
     }

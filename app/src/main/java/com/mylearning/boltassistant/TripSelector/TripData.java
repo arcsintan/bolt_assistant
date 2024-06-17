@@ -10,13 +10,33 @@ public class TripData {
     private float distance;
     private String addressStart;
     private String addressEnd;
+
+
+
     private long timestamp;
     private boolean success;
     private int platform; // 0 or 1
     private int tripType; // 0 or 1
     private int quality;  // New field
-
+    private long id; // Add this field
+    // Other fields...
     public TripData(String day, float price, Date pickupDateTime, String category, float distance, String addressStart, String addressEnd, int platform, int tripType, int quality) {
+        this.day = day;
+        this.price = price;
+        this.pickupDateTime = pickupDateTime;
+        this.category = category;
+        this.distance = distance;
+        this.addressStart = addressStart;
+        this.addressEnd = addressEnd;
+        this.timestamp = System.currentTimeMillis();
+        Random random = new Random();
+        this.success = random.nextBoolean();
+        this.platform = platform;
+        this.tripType = tripType;
+        this.quality = quality;
+    }
+
+    public TripData(long id, String day, float price, Date pickupDateTime, String category, float distance, String addressStart, String addressEnd, int platform, int tripType, int quality) {
         this.day = day;
         this.price = price;
         this.pickupDateTime = pickupDateTime;
@@ -30,8 +50,21 @@ public class TripData {
         this.platform = platform;
         this.tripType = tripType;
         this.quality = quality;
+        this.id = id;
     }
 
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+    // Getters and Setters
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
     // Getters and Setters
 
     public void setSuccess(boolean success) {
