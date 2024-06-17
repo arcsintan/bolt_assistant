@@ -1,33 +1,47 @@
 package com.mylearning.boltassistant;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
 
-public class CircleView extends AbstractShapeView{
-    private final String TAG="CircleView";
+public class CircleView extends AbstractShapeView {
+    private final String TAG = "CircleView";
     private int index;
     private int radius;
-    private int centerX, centerY;
     private int duration;
-    private int timeUtilNextCommand;
-    private final String type=ShapeViewType.CIRCLE.toString();
+    private int timeUntilNextCommand;
+    private int centerX, centerY;
 
 
 
-    public CircleView(Context context,int x, int y,  int radius,int duration, int timeUntilNextCommand,  int index) {
+    public CircleView(Context context, int x, int y, int radius, int duration, int timeUntilNextCommand, int index) {
         super(context, x, y);
         this.index = index;
         this.radius = radius;
         this.duration=duration;
-        this.timeUtilNextCommand=timeUntilNextCommand;
+        this.timeUntilNextCommand=timeUntilNextCommand;
 
         init();
     }
-    public CircleView(Context context,CircleData circleData) {
+
+    @Override
+    public void handleBroadcast(Intent intent) {
+        if (intent != null) {
+            int newDuration = intent.getIntExtra(SetCircleValuesActivity.EXTRA_DURATION, duration);
+            int newTimeUntilNextCommand = intent.getIntExtra(SetCircleValuesActivity.EXTRA_TIME_UNTIL_NEXT_COMMAND, timeUntilNextCommand);
+            updateValues(newDuration, newTimeUntilNextCommand);
+        }else{
+            Log.e(TAG, "A null intent received from SetCircleValuesActivity");
+        }
+    }
+
+    public CircleView(Context context, CircleData circleData) {
         this(context, circleData.getX(), circleData.getY(), circleData.getRadius(), circleData.getDuration(), circleData.getTimeUntilNextCommand(), circleData.getIndex());
     }
 
@@ -36,6 +50,10 @@ public class CircleView extends AbstractShapeView{
         init();
     }
 
+    @Override
+    protected String getBroadcastAction() {
+            return SetCircleValuesActivity.ACTION_UPDATE_VALUES;
+    }
 
 
     private void init() {
@@ -47,67 +65,89 @@ public class CircleView extends AbstractShapeView{
         circleView.getLayoutParams().width = (int) (2 * radius);
         circleView.getLayoutParams().height = (int) (2 * radius);
         circleView.requestLayout();
+
+        setOnLongClickListener(new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                launchSetValuesActivity();
+                return true;
+            }
+        });
+    }
+    private  void updateValues(int duration, int timeUntilNextCommand){
+        Log.d(TAG,"A borad cast recieved duration="+duration+" , next command="+timeUntilNextCommand);
+        this.duration=duration;
+        this.timeUntilNextCommand=timeUntilNextCommand;
+        Log.d(TAG, this.toString());
+    }
+
+    private void launchSetValuesActivity() {
+        Log.d(TAG, this.toString());
+        Context context = getContext();
+        Intent intent = new Intent(context, SetCircleValuesActivity.class);
+        intent.putExtra(SetCircleValuesActivity.EXTRA_DURATION, duration);
+        intent.putExtra(SetCircleValuesActivity.EXTRA_TIME_UNTIL_NEXT_COMMAND, timeUntilNextCommand);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
+
+    @Override
+    public void handleLongTouch() {
+        Log.d(TAG, "handleLongTouch event triggered");
+        launchSetValuesActivity();
     }
 
     public int getViewWidth() {
-        return   2 * radius;
-    }
-    private void setCenter(){
-
-        centerX=layoutParams.x+radius;
-        centerY=layoutParams.y+radius;
+        return 2 * radius;
     }
 
     public int getViewHeight() {
-
         return 2 * radius;
     }
+
+    public int getShapeX() {
+        return layoutParams.x;
+    }
+
+    public void setShapeX(int x) {
+        layoutParams.x = x;
+        updateView();
+    }
+
+    public int getShapeY() {
+        return layoutParams.y;
+    }
+
+    public void setShapeY(int y) {
+        layoutParams.y = y;
+        updateView();
+    }
+
+    public boolean isTouched(int touchX, int touchY) {
+        int dx = touchX - (getShapeX() + radius);
+        int dy = touchY - (getShapeY() + radius);
+        return dx * dx + dy * dy <= radius * radius;
+    }
+
     @Override
     public String toJson() {
         Gson gson = new Gson();
-        CircleData circleData = new CircleData(layoutParams.x, layoutParams.y, radius, duration, timeUtilNextCommand, index, type);
+        CircleData circleData = new CircleData(layoutParams.x, layoutParams.y, radius, duration, timeUntilNextCommand, index, getType());
         return gson.toJson(circleData);
     }
 
     @Override
     String getType() {
-        return type;
+        return ShapeViewType.CIRCLE.toString();
     }
-
-
-
-
-
-
-
 
     @Override
     public void execute(MyAccessibilityService service) {
-        service.addCommand(new SimulateTouchCommand(service, layoutParams.x+radius, layoutParams.y+radius+35, 45, timeUtilNextCommand));
+        service.addCommand(new SimulateTouchCommand(service, layoutParams.x + radius, layoutParams.y + radius + 35, 45, timeUntilNextCommand));
     }
 
-
-
-
-    public boolean isTouched(int touchX, int touchY) {
-        int dx = touchX - (getShapeX() + (int) radius);
-        int dy = touchY - (getShapeY() + (int) radius);
-        return dx * dx + dy * dy <= radius * radius;
-    }
-    int getRadius(){
-        return radius;
-    }
-    int getIndex(){
-        return index;
-    }
-    int getDuration(){
-        return duration;
-    }
-    int getTimeUntilNextCommand(){
-        return timeUtilNextCommand;
-    }
     @Override
     public String toString() {
-        return "Circle View["+index+"] ("+layoutParams.x+", "+layoutParams.y+", d)";
+        return new CircleData(layoutParams.x, layoutParams.y, radius, duration, timeUntilNextCommand, index, getType()).toString();
     }
 }

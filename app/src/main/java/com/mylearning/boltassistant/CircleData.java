@@ -54,6 +54,6 @@ public  class CircleData {
 
     @Override
     public String toString() {
-        return "Circle["+index+"]("+x+", "+y+","+radius+")";
+        return "Circle["+index+"](x="+x+", y="+y+",R="+radius+", d="+duration+", n_c="+timeUntilNextCommand;
     }
 }
