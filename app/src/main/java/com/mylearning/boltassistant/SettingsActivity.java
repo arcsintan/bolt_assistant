@@ -24,6 +24,7 @@ public class SettingsActivity extends Activity {
     private ShapeConfigManager.ShapeConfig selectedConfig;
     public static final String ACTION_SETTINGS_RESULT = "com.mylearning.boltassistant.ACTION_SETTINGS_RESULT";
     private AlertDialog dialog;
+    public static boolean is_running=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,9 +34,11 @@ public class SettingsActivity extends Activity {
         configManager = ShapeConfigManager.getInstance(this);
 
         showSettingsDialog();
+
     }
 
     private void showSettingsDialog() {
+        is_running=true;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_settings, null);
@@ -50,6 +53,7 @@ public class SettingsActivity extends Activity {
         btnNewConfig.setOnClickListener(v -> showSaveConfigDialog());
         btnCancel.setOnClickListener(v -> {
             dialog.dismiss();
+            is_running=false;
             finish();  // Finish the activity when the dialog is dismissed
         });
 
@@ -58,6 +62,7 @@ public class SettingsActivity extends Activity {
         listViewConfigs.setOnItemClickListener((parent, view, position, id) -> {
             selectedConfig = configs.get(position);
             sendResultAndFinish();
+
             dialog.dismiss();
         });
 
@@ -117,6 +122,7 @@ public class SettingsActivity extends Activity {
             Intent resultIntent = new Intent(ACTION_SETTINGS_RESULT);
             resultIntent.putExtra("loadedConfig", (Serializable) selectedConfig.getShapes());
             sendBroadcast(resultIntent);
+            is_running=false;
             finish();
         } else {
             Toast.makeText(this, "No configuration selected", Toast.LENGTH_SHORT).show();
@@ -125,9 +131,17 @@ public class SettingsActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        is_running=false;
         super.onDestroy();
         if (dialog != null && dialog.isShowing()) {
             dialog.dismiss();
         }
+    }
+    @Override
+    protected void onPause() {
+        is_running=false;
+        finish();
+        super.onPause();
+
     }
 }

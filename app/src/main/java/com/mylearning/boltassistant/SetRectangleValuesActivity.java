@@ -32,7 +32,9 @@ public class SetRectangleValuesActivity extends Activity {
     public static final String EXTRA_HEIGHT = "com.mylearning.boltassistant.HEIGHT";
     public static final String ACTION_UPDATE_VALUES = "com.mylearning.boltassistant.ACTION_UPDATE_VALUES";
     public static final String ACTION_ID = "com.mylearning.boltassistant.ACTION_ID";
-    public static int random_number;
+    public static int action_index;
+    public static boolean is_running=false;
+
 
     private EditText dateEditText;
     private EditText timeEditText;
@@ -98,7 +100,7 @@ public class SetRectangleValuesActivity extends Activity {
             String dropoff = intent.getStringExtra(EXTRA_DROPOFF);
             int width = intent.getIntExtra(EXTRA_WIDTH, 100);
             int height = intent.getIntExtra(EXTRA_HEIGHT, 50);
-            random_number=intent.getIntExtra(ACTION_ID, 1);
+            action_index=intent.getIntExtra(ACTION_ID, 1);
 
             Date date = new Date(dateMillis);
             Date time = new Date(timeMillis);
@@ -128,6 +130,7 @@ public class SetRectangleValuesActivity extends Activity {
                 sendUpdateBroadcast();
 
                 Toast.makeText(SetRectangleValuesActivity.this, "Values updated", Toast.LENGTH_SHORT).show();
+                is_running=false;
                 finish();
             }
         });
@@ -136,9 +139,11 @@ public class SetRectangleValuesActivity extends Activity {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                is_running=false;
                 finish();
             }
         });
+        is_running=true;
     }
     private void sendUpdateBroadcast() {
         try {
@@ -167,7 +172,7 @@ public class SetRectangleValuesActivity extends Activity {
             resultIntent.putExtra(EXTRA_DROPOFF, dropoff);
             resultIntent.putExtra(EXTRA_WIDTH, width);
             resultIntent.putExtra(EXTRA_HEIGHT, height);
-            resultIntent.putExtra(ACTION_ID, random_number);
+            resultIntent.putExtra(ACTION_ID, action_index);
 
             // Broadcast the intent
             sendBroadcast(resultIntent);
@@ -203,5 +208,11 @@ public class SetRectangleValuesActivity extends Activity {
     private void updateTimeEditText() {
         timeEditText.setText(String.format("%02d:%02d", calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
+    }
+    @Override
+    protected void onPause() {
+        is_running=false;
+        super.onPause();
+
     }
 }

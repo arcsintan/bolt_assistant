@@ -17,12 +17,14 @@ public class SetCircleValuesActivity extends Activity {
     public static final String ACTION_UPDATE_VALUES = "com.mylearning.boltassistant.ACTION_UPDATE_VALUES";
     public static final String ACTION_INDEX = "com.mylearning.boltassistant.ACTION_INDEX";
     public static final String ACTION_ID = "com.mylearning.boltassistant.ACTION_ID";
-    public  int random_number;
+    public  int action_index;
     private EditText durationEditText;
     private EditText timeUntilNextCommandEditText;
     private TextView circleInMenu;
+    public static boolean is_running=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.set_circle_prop_menu);
 
@@ -35,12 +37,12 @@ public class SetCircleValuesActivity extends Activity {
             int duration1 = intent.getIntExtra(EXTRA_DURATION, 10);
             int timeUntilNextCommand1 = intent.getIntExtra(EXTRA_TIME_UNTIL_NEXT_COMMAND, 60);
             int index=intent.getIntExtra(ACTION_INDEX, 60);
-            random_number=intent.getIntExtra(ACTION_ID, 1);
+            action_index=intent.getIntExtra(ACTION_ID, 1);
             circleInMenu.setText(String.valueOf(index));
 
             durationEditText.setText(String.valueOf(duration1));
             timeUntilNextCommandEditText.setText(String.valueOf(timeUntilNextCommand1));
-            Log.d(TAG, "id set to "+random_number);
+            Log.d(TAG, "id set to "+action_index);
         }
 
         Button saveButton = findViewById(R.id.save_button);
@@ -55,6 +57,7 @@ public class SetCircleValuesActivity extends Activity {
                     sendUpdateBroadcast(duration, timeUntilNextCommand);
 
                     Toast.makeText(SetCircleValuesActivity.this, "Values updated", Toast.LENGTH_SHORT).show();
+                    is_running=false;
                     finish();
                 } catch (NumberFormatException e) {
                     Toast.makeText(SetCircleValuesActivity.this, "Invalid input", Toast.LENGTH_SHORT).show();
@@ -66,9 +69,11 @@ public class SetCircleValuesActivity extends Activity {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                is_running=false;
                 finish();
             }
         });
+        is_running=true;
     }
 
     private void sendUpdateBroadcast(int duration, int timeUntilNextCommand) {
@@ -76,7 +81,13 @@ public class SetCircleValuesActivity extends Activity {
         Intent intent = new Intent(ACTION_UPDATE_VALUES);
         intent.putExtra(EXTRA_DURATION, duration);
         intent.putExtra(EXTRA_TIME_UNTIL_NEXT_COMMAND, timeUntilNextCommand);
-        intent.putExtra(ACTION_ID, random_number);
+        intent.putExtra(ACTION_ID, action_index);
         sendBroadcast(intent);
+    }
+    @Override
+    protected void onPause() {
+        is_running=false;
+        super.onPause();
+
     }
 }
