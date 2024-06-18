@@ -180,6 +180,10 @@ public class OverlayService extends Service {
     }
 
     private void handleSettingsButtonClick() {
+        if (SettingsActivity.is_running){
+            Log.d(TAG, "There is another setting popup running");
+            return;
+        }
         Intent intent = new Intent(this, SettingsActivity.class);
         ArrayList<String> shapeViewJsons = new ArrayList<>();
         for (AbstractShapeView shapeView : shapeViews) {
