@@ -36,7 +36,7 @@ public class CircleView extends AbstractShapeView {
 
     @Override
     public void handleBroadcast(Intent intent) {
-        if (intent != null && intent.getIntExtra(SetCircleValuesActivity.ACTION_ID, 1)==uniq_id) {
+        if (intent != null && intent.getIntExtra(SetCircleValuesActivity.ACTION_ID, 1)==index) {
             int newDuration = intent.getIntExtra(SetCircleValuesActivity.EXTRA_DURATION, duration);
             int newTimeUntilNextCommand = intent.getIntExtra(SetCircleValuesActivity.EXTRA_TIME_UNTIL_NEXT_COMMAND, timeUntilNextCommand);
             updateValues(newDuration, newTimeUntilNextCommand);
@@ -87,14 +87,18 @@ public class CircleView extends AbstractShapeView {
     }
 
     private void launchSetValuesActivity() {
-        setUniqID();
+        if(SetCircleValuesActivity.is_running){
+            Log.d(TAG, "Another Circle setting open.");
+            return;
+        }
+
         Log.d(TAG, this.toString());
         Context context = getContext();
         Intent intent = new Intent(context, SetCircleValuesActivity.class);
         intent.putExtra(SetCircleValuesActivity.EXTRA_DURATION, duration);
         intent.putExtra(SetCircleValuesActivity.EXTRA_TIME_UNTIL_NEXT_COMMAND, timeUntilNextCommand);
         intent.putExtra(SetCircleValuesActivity.ACTION_INDEX, index);
-        intent.putExtra(SetCircleValuesActivity.ACTION_ID, uniq_id);
+        intent.putExtra(SetCircleValuesActivity.ACTION_ID, index);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
@@ -137,10 +141,7 @@ public class CircleView extends AbstractShapeView {
         return dx * dx + dy * dy <= radius * radius;
     }
 
-    @Override
-    protected void setUniqID() {
-        uniq_id= rn_gen.nextInt();
-    }
+
 
     @Override
     public String toJson() {
