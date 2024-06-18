@@ -26,8 +26,7 @@ public abstract class AbstractShapeView extends RelativeLayout {
 
     private int initialX, initialY;
     private float initialTouchX, initialTouchY;
-    protected Random rn_gen=new Random();
-    protected int uniq_id;
+
     private GestureDetector gestureDetector;
 
 
@@ -163,7 +162,7 @@ public abstract class AbstractShapeView extends RelativeLayout {
         context.unregisterReceiver(broadcastReceiver);
     }
     protected abstract boolean isTouched(float x, float y);
-protected abstract void setUniqID();
+
 
     @Override
     protected void onDetachedFromWindow() {
