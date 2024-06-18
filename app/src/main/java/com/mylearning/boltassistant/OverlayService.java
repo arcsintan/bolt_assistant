@@ -45,7 +45,7 @@ public class OverlayService extends Service {
     private String recognizedText;
     private int centerX;
     private int centerY;
-    private volatile boolean shouldBeContinue = false;
+    private volatile boolean is_running_loop = false;
     private Thread mainLoopThread;
     private PowerManager.WakeLock wakeLock;
 
@@ -136,24 +136,27 @@ public class OverlayService extends Service {
 
     private void handlePlayButtonClick() {
         MyAccessibilityService service = MyAccessibilityService.getInstance();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            shapeViews.forEach(System.out::println);
-        }
-        shouldBeContinue = true;
-        if (service != null) {
-            for (AbstractShapeView shapeView : shapeViews) {
-                shapeView.execute(service);
+        if (!is_running_loop){
+            if (service != null) {
+                for (AbstractShapeView shapeView : shapeViews) {
+                    shapeView.execute(service);
+                }
+                MyLog.d(TAG, Thread.currentThread().getName());
+                service.executeAllCommands();
             }
-            MyLog.d(TAG, Thread.currentThread().getName());
-            service.executeAllCommands();
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            shapeViews.forEach(System.out::println);
-        }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                shapeViews.forEach(txt->Log.d(TAG, txt.toString()));
+            }
+
+        }else{
+        Log.d(TAG, "Still busy with another loop");
+    }
+
     }
 
     private void handleAddCircleButtonClick() {
-        CircleView newCircle = new CircleView(getApplicationContext(), centerX, centerY, 50, 150, 200, shapeViews.size() + 1);
+        CircleView newCircle = new CircleView(getApplicationContext(), centerX, centerY, 50, 150, 500, shapeViews.size() + 1);
         shapeViews.add(newCircle);
         addShapeView(newCircle);
         Log.d(TAG, "Add Button clicked, new circle added");
@@ -167,10 +170,11 @@ public class OverlayService extends Service {
     }
 
     private void handleStopButtonClick() {
-        shouldBeContinue = false;
+
         MyAccessibilityService service = MyAccessibilityService.getInstance();
         if (service != null) {
             service.stopAllCommands(); // Implement a method to safely stop command execution
+            is_running_loop=false;
         }
         Log.d(TAG, "Stop Button clicked");
     }
@@ -293,7 +297,6 @@ public class OverlayService extends Service {
     public void onDestroy() {
         super.onDestroy();
         releaseWakeLock(); // Release the wake lock here
-        shouldBeContinue = false;
         if (mainLoopThread != null) {
             mainLoopThread.interrupt();
         }

@@ -30,6 +30,31 @@ public class BlindSelector implements AbstractSelector{
     public TripData getTripData() {
         return null;
     }
+
+    @Override
+    public boolean checkDistance() {
+        return true;
+    }
+
+    @Override
+    public boolean checkTime() {
+        return true;
+    }
+
+    @Override
+    public boolean checkDestination() {
+        return true;
+    }
+
+    @Override
+    public boolean checkPickup() {
+        return true;
+    }
+
+    @Override
+    public boolean checkPrice() {
+        return true;
+    }
 }
 
 

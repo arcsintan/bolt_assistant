@@ -29,8 +29,8 @@ public class TripData {
         this.addressStart = addressStart;
         this.addressEnd = addressEnd;
         this.timestamp = System.currentTimeMillis();
-        Random random = new Random();
-        this.success = random.nextBoolean();
+
+        this.success = false;
         this.platform = platform;
         this.tripType = tripType;
         this.quality = quality;

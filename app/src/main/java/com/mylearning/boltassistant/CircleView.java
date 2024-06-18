@@ -163,4 +163,5 @@ public class CircleView extends AbstractShapeView {
     public String toString() {
         return new CircleData(layoutParams.x, layoutParams.y, radius, duration, timeUntilNextCommand, index, getType()).toString();
     }
+
 }

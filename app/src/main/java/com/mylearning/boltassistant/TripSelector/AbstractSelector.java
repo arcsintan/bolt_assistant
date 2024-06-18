@@ -7,4 +7,9 @@ public interface AbstractSelector {
     void analyzeText(String inputText);
     void analyzeText(List<String> inputText);
     public TripData getTripData();
+    public boolean checkDistance();
+    public boolean checkTime();
+    public boolean checkDestination();
+    public boolean checkPickup();
+    public boolean checkPrice();
 }

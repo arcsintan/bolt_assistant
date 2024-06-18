@@ -97,7 +97,6 @@ public class MyAccessibilityService extends AccessibilityService {
 
 
     public void executeAllCommands() {
-
         turnOnAllCommand();
         System.out.println("Size of the Queue = " + commandList.size());
         if (runningStatus) {
@@ -118,7 +117,7 @@ public class MyAccessibilityService extends AccessibilityService {
                             long startTime = System.currentTimeMillis();
                             synchronized (lock) {
                                 command.execute(); // Execute the command
-                                Log.d(TAG, " Click at location " + i);
+                                //Log.d(TAG, " Click at location " + i);
                                 lock.wait(); // Wait for the command to finish
                             }
                             long executionTime = System.currentTimeMillis() - startTime;
@@ -132,22 +131,28 @@ public class MyAccessibilityService extends AccessibilityService {
                                 lock.wait(); // Wait for the command to finish
 
                                 // Now proceed with text analysis
-                                Log.d("reading text", "We use important data list");
-                                Log.d("reading text", "list size= " + importantTextData.size());
-                                Log.d("reading text", importantTextData.toString());
-                                Log.d("--------------", "--------------------------------------");
+//                                Log.d("reading text", "We use important data list");
+//                                Log.d("reading text", "list size= " + importantTextData.size());
+//                                Log.d("reading text", importantTextData.toString());
+//                                Log.d("--------------", "--------------------------------------");
                                 if (importantTextData.size() < 4) break;
 
                                 try {
                                     // Create a copy of the list to avoid ConcurrentModificationException
-                                    List<String> dataCopy = new ArrayList<>(importantTextData);
-                                    AbstractSelector tripSelector = new BoltNormal(dataCopy);
+
+                                    AbstractSelector tripSelector = new BoltNormal(importantTextData);
                                     Boolean res = tripSelector.selectInput();
                                     tripData = tripSelector.getTripData();
-
+                                    Log.d(TAG, res? "Acceptable" : "Rejected");
                                     if (tripData == null) {
                                         Log.e(TAG, "TripData is null after parsing");
                                     }
+                                    if(!res){
+                                        tripData.setSuccess(false);
+                                        break;
+                                    }else tripData.setSuccess(true);
+
+
                                 } catch (IndexOutOfBoundsException e) {
                                     Log.e(TAG, "Error parsing importantTextData: " + e.getMessage());
                                 }
@@ -160,12 +165,14 @@ public class MyAccessibilityService extends AccessibilityService {
                     }
                 }
                 if (tripData != null) {
+
                     tripData.setQuality(4);
                     Context context = MyAccessibilityService.getInstance(); // Get the service instance
 
                     // Insert the trip data asynchronously
                     TripData finalTripData = tripData; // Ensure it's effectively final
                     executorService.submit(() -> {
+                        Log.d(TAG, "A trip to be written in the data base "+ finalTripData.toString());
                         TripDataManager tripDataManager = new TripDataManager(context);
                         tripDataManager.insertTripData(finalTripData);
                         tripDataManager.close();
@@ -209,13 +216,7 @@ public class MyAccessibilityService extends AccessibilityService {
     }
 
     // Method to analyze the extracted text
-    public boolean analyzeExtractedText(String text) {
-        MyLog.d(TAG, Thread.currentThread().getName());
-        // Implement your analysis logic here
-        // Return true if analysis succeeds, false if it fails
-        MyLog.d(TAG, getFullText());
-        return !text.isEmpty();  // Example: fail if text is empty
-    }
+
 
     public void extractTextFromRect(Rect targetRect, Runnable callback) {
         MyLog.d(TAG, Thread.currentThread().getName());
@@ -252,7 +253,7 @@ public class MyAccessibilityService extends AccessibilityService {
 
         if (currentDepth == targetDepth && node.getText() != null) {
             result.add(node.getText().toString());
-            Log.d(TAG, "Node text at depth " + targetDepth + ": " + node.getText().toString());
+            //Log.d(TAG, "Node text at depth " + targetDepth + ": " + node.getText().toString());
         }
 
         for (int i = 0; i < node.getChildCount(); i++) {
@@ -398,7 +399,7 @@ public class MyAccessibilityService extends AccessibilityService {
         }
     }
     public void simulateTouch(float x, float y, int duration, int timeUntilNextCommand, Runnable callback) {
-        Log.d(TAG, Thread.currentThread().getName());
+        //Log.d(TAG, Thread.currentThread().getName());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Path path = new Path();
             path.moveTo(x, y);
