@@ -106,6 +106,7 @@ public class MyAccessibilityService extends AccessibilityService {
         runningStatus = true;
         commandThread = new Thread(() -> {
             while (shouldBeContinue && !Thread.currentThread().isInterrupted()) {
+
                 TripData tripData = null;
                 for (int i = 0; i < commandList.size(); i++) {
                     try {
@@ -129,17 +130,9 @@ public class MyAccessibilityService extends AccessibilityService {
                             synchronized (lock) {
                                 command.execute(); // Execute the command and wait for it to complete
                                 lock.wait(); // Wait for the command to finish
-
-                                // Now proceed with text analysis
-//                                Log.d("reading text", "We use important data list");
-//                                Log.d("reading text", "list size= " + importantTextData.size());
-//                                Log.d("reading text", importantTextData.toString());
-//                                Log.d("--------------", "--------------------------------------");
                                 if (importantTextData.size() < 4) break;
 
                                 try {
-                                    // Create a copy of the list to avoid ConcurrentModificationException
-
                                     AbstractSelector tripSelector = new BoltNormal(importantTextData);
                                     Boolean res = tripSelector.selectInput();
                                     tripData = tripSelector.getTripData();
@@ -403,7 +396,7 @@ public class MyAccessibilityService extends AccessibilityService {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Path path = new Path();
             path.moveTo(x, y);
-            //Log.d(TAG, "Path moved to x=" + x + ", y=" + y);
+            Log.d(TAG, "Path moved to x=" + x + ", y=" + y);
             GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription(path, 0, duration);
             GestureDescription gesture = new GestureDescription.Builder().addStroke(stroke).build();
 
@@ -411,7 +404,7 @@ public class MyAccessibilityService extends AccessibilityService {
                 @Override
                 public void onCompleted(GestureDescription gestureDescription) {
                     super.onCompleted(gestureDescription);
-                    //Log.d(TAG, "Touch gesture completed");
+                    Log.d(TAG, "Touch gesture completed");
                     if (callback != null) {
                         callback.run();
                     }
