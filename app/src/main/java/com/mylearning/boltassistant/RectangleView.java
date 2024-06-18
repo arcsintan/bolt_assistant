@@ -81,7 +81,11 @@ public class RectangleView extends AbstractShapeView {
     }
 
     private void launchSetValuesActivity() {
-        setUniqID();
+        if(SetRectangleValuesActivity.is_running){
+            Log.d(TAG, "Another Rectangle is going to update itself");
+            return;
+        }
+
         Context context = getContext();
         Intent intent = new Intent(context, SetRectangleValuesActivity.class);
         intent.putExtra(SetRectangleValuesActivity.EXTRA_DATE, date.getTime());
@@ -93,7 +97,7 @@ public class RectangleView extends AbstractShapeView {
         intent.putExtra(SetRectangleValuesActivity.EXTRA_DROPOFF, dropoff);
         intent.putExtra(SetRectangleValuesActivity.EXTRA_WIDTH, width);
         intent.putExtra(SetRectangleValuesActivity.EXTRA_HEIGHT, height);
-        intent.putExtra(SetRectangleValuesActivity.ACTION_ID, uniq_id);
+        intent.putExtra(SetRectangleValuesActivity.ACTION_ID, index);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
@@ -104,7 +108,7 @@ public class RectangleView extends AbstractShapeView {
 
     @Override
     protected void handleBroadcast(Intent intent) {
-        if (intent.getAction() != null && intent.getIntExtra(SetRectangleValuesActivity.ACTION_ID,1)==uniq_id) {
+        if (intent.getAction() != null && intent.getIntExtra(SetRectangleValuesActivity.ACTION_ID,1)==index) {
             Log.d(TAG, "A broadcast recieved to update the value of the Rectangle Data");
             date = new Date(intent.getLongExtra(SetRectangleValuesActivity.EXTRA_DATE, new Date().getTime()));
             time = new Date(intent.getLongExtra(SetRectangleValuesActivity.EXTRA_TIME, new Date().getTime()));
@@ -130,10 +134,7 @@ public class RectangleView extends AbstractShapeView {
         return touchX >= getShapeX() && touchX <= getShapeX() + width && touchY >= getShapeY() && touchY <= getShapeX() + height;
     }
 
-    @Override
-    protected void setUniqID() {
-        uniq_id=rn_gen.nextInt();
-    }
+
 
 
     private void updateViewData(int newWidth, int newHeight) {
