@@ -135,8 +135,9 @@ public class OverlayService extends Service {
     }
 
     private void handlePlayButtonClick() {
-        MyAccessibilityService service = MyAccessibilityService.getInstance();
         if (!is_running_loop){
+        MyAccessibilityService service = MyAccessibilityService.getInstance();
+
             if (service != null) {
                 for (AbstractShapeView shapeView : shapeViews) {
                     shapeView.execute(service);
@@ -148,6 +149,7 @@ public class OverlayService extends Service {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 shapeViews.forEach(txt->Log.d(TAG, txt.toString()));
             }
+            is_running_loop=true;
 
         }else{
         Log.d(TAG, "Still busy with another loop");
