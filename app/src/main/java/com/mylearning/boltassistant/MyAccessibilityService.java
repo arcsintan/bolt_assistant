@@ -30,18 +30,18 @@ public class MyAccessibilityService extends AccessibilityService {
     private static final String TAG = "MyAccessibilityService";
     private static MyAccessibilityService instance;
     private Handler handler;
-    private List<Command> commandList = new ArrayList<>();
+    private static List<Command> commandList = new ArrayList<>();
     private boolean debugMode = false;
 
     private StringBuilder fullText = new StringBuilder(); // Store the full extracted text
     public Object lock = new Object();
     private StringBuilder allText = new StringBuilder();
 
-    private volatile boolean shouldBeContinue = true;
-    private volatile boolean runningStatus = false;
-    private Thread commandThread; // The thread running the commands
+    private static volatile boolean shouldBeContinue = true;
+    private static volatile boolean runningStatus = false;
+    private static Thread commandThread; // The thread running the commands
     private List<String> importantTextData = new ArrayList<>();
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Override
     public void onCreate() {
@@ -51,6 +51,15 @@ public class MyAccessibilityService extends AccessibilityService {
     }
 
     public static MyAccessibilityService getInstance() {
+        shouldBeContinue = true;
+        runningStatus=false;
+        if(commandThread!=null) {
+            commandThread.interrupt();
+        }
+        if(executorService!=null) {
+            executorService.shutdownNow();
+        }
+        commandList.clear();
         return instance;
     }
 
@@ -64,31 +73,6 @@ public class MyAccessibilityService extends AccessibilityService {
         // Handle service interruption
     }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null) {
-            String action = intent.getStringExtra("action");
-            if ("simulate_touch".equals(action)) {
-                float x = intent.getFloatExtra("x", 0);
-                float y = intent.getFloatExtra("y", 0);
-                int duration = intent.getIntExtra("duration", 100);
-                int timeUntilNextCommand = intent.getIntExtra("timeUntilNextCommand", 1000);
-
-                Log.d(TAG, "A touch message received to click on " + x + ", " + y);
-                addCommand(new SimulateTouchCommand(this, x, y, duration, timeUntilNextCommand));
-            } else if ("extract_text".equals(action)) {
-                Rect targetRect = intent.getParcelableExtra("targetRect");
-                if (targetRect != null) {
-                    Log.d(TAG, "Text extraction command received for rect: " + targetRect.toString());
-                    addCommand(new ReadTextCommand(this, targetRect));
-                }
-            } else if ("extract_all_text".equals(action)) {
-                Log.d(TAG, "Text extraction command received to read all text");
-                addCommand(new ReadAllTextCommand(this));
-            }
-        }
-        return super.onStartCommand(intent, flags, startId);
-    }
 
     public void addCommand(Command command) {
         commandList.add(command);
@@ -96,6 +80,7 @@ public class MyAccessibilityService extends AccessibilityService {
 
 
     public void executeAllCommands() {
+
         turnOnAllCommand();
         System.out.println("Size of the Queue = " + commandList.size());
         if (runningStatus) {
@@ -104,8 +89,8 @@ public class MyAccessibilityService extends AccessibilityService {
         }
         runningStatus = true;
         commandThread = new Thread(() -> {
+            TripData preTripData=new TripData();
             while (shouldBeContinue && !Thread.currentThread().isInterrupted()) {
-
                 TripData tripData = null;
                 for (int i = 0; i < commandList.size(); i++) {
                     try {
@@ -132,7 +117,8 @@ public class MyAccessibilityService extends AccessibilityService {
                                 if (importantTextData.size() < 4) break;
 
                                 try {
-                                    AbstractSelector tripSelector = new BoltNormal(importantTextData);
+                                    RectangleData rectangleData=command.getRectangleData();
+                                    AbstractSelector tripSelector = new BoltNormal(importantTextData, rectangleData);
                                     Boolean res = tripSelector.selectInput();
                                     tripData = tripSelector.getTripData();
                                     Log.d(TAG, res? "Acceptable" : "Rejected");
@@ -156,7 +142,7 @@ public class MyAccessibilityService extends AccessibilityService {
                         break; // Exit the loop if interrupted
                     }
                 }
-                if (tripData != null) {
+                if (tripData != null &&  !tripData.equals(preTripData)) {
 
                     tripData.setQuality(4);
                     Context context = MyAccessibilityService.getInstance(); // Get the service instance
@@ -168,8 +154,14 @@ public class MyAccessibilityService extends AccessibilityService {
                         TripDataManager tripDataManager = new TripDataManager(context);
                         tripDataManager.insertTripData(finalTripData);
                         tripDataManager.close();
+
                     });
                 }
+                preTripData=tripData;
+                if(preTripData!=null) {
+                    Log.d(TAG, "previous trip=" + preTripData.toString());
+                }
+
             }
         });
         commandThread.start();
@@ -177,27 +169,7 @@ public class MyAccessibilityService extends AccessibilityService {
     }
 
 
-    // Method to backup database
-    public void backupDatabase() {
-        TripDataManager tripDataManager = new TripDataManager(this);
-        if (tripDataManager.backupDatabase()) {
-            Log.d("MyAccessibilityService", "Database backup successful");
-        } else {
-            Log.e("MyAccessibilityService", "Database backup failed");
-        }
-        tripDataManager.close();
-    }
 
-    // Method to restore database
-    public void restoreDatabase(String backupFileName) {
-        TripDataManager tripDataManager = new TripDataManager(this);
-        if (tripDataManager.restoreDatabase(backupFileName)) {
-            Log.d("MyAccessibilityService", "Database restore successful");
-        } else {
-            Log.e("MyAccessibilityService", "Database restore failed");
-        }
-        tripDataManager.close();
-    }
 
     public void stopAllCommands() {
         shouldBeContinue = false;
@@ -395,7 +367,7 @@ public class MyAccessibilityService extends AccessibilityService {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Path path = new Path();
             path.moveTo(x, y);
-            Log.d(TAG, "Path moved to x=" + x + ", y=" + y);
+            //Log.d(TAG, "Path moved to x=" + x + ", y=" + y);
             GestureDescription.StrokeDescription stroke = new GestureDescription.StrokeDescription(path, 0, duration);
             GestureDescription gesture = new GestureDescription.Builder().addStroke(stroke).build();
 
@@ -403,7 +375,7 @@ public class MyAccessibilityService extends AccessibilityService {
                 @Override
                 public void onCompleted(GestureDescription gestureDescription) {
                     super.onCompleted(gestureDescription);
-                    Log.d(TAG, "Touch gesture completed");
+                    //Log.d(TAG, "Touch gesture completed");
                     if (callback != null) {
                         callback.run();
                     }
@@ -415,7 +387,7 @@ public class MyAccessibilityService extends AccessibilityService {
                 @Override
                 public void onCancelled(GestureDescription gestureDescription) {
                     super.onCancelled(gestureDescription);
-                    Log.d(TAG, "Touch gesture cancelled");
+                    Log.d(TAG, "Touch gesture cancelled , x=" + x + ", y=" + y);
                     if (callback != null) {
                         callback.run();
                     }
@@ -453,6 +425,8 @@ public class MyAccessibilityService extends AccessibilityService {
 
     @Override
     public void onDestroy() {
+
         super.onDestroy();
+        executorService.shutdownNow();
     }
 }
