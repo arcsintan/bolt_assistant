@@ -41,7 +41,7 @@ public class MyAccessibilityService extends AccessibilityService {
     private static volatile boolean runningStatus = false;
     private static Thread commandThread; // The thread running the commands
     private List<String> importantTextData = new ArrayList<>();
-    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     @Override
     public void onCreate() {
@@ -55,9 +55,6 @@ public class MyAccessibilityService extends AccessibilityService {
         runningStatus=false;
         if(commandThread!=null) {
             commandThread.interrupt();
-        }
-        if(executorService!=null) {
-            executorService.shutdownNow();
         }
         commandList.clear();
         return instance;
@@ -138,7 +135,6 @@ public class MyAccessibilityService extends AccessibilityService {
                         }
                     } catch (InterruptedException e) {
                         Log.e(TAG, "Command processing interrupted", e);
-                        shouldBeContinue = false;
                         break; // Exit the loop if interrupted
                     }
                 }
