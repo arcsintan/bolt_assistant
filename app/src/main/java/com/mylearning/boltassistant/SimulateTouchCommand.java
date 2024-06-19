@@ -5,22 +5,24 @@ class SimulateTouchCommand implements Command {
     private float x, y;
     private int duration;
     private int timeUntilNextCommand;
-
-    public SimulateTouchCommand(MyAccessibilityService service, float x, float y, int duration, int timeUntilNextCommand) {
+    public CircleData circleData;
+    public RectangleData rectangleData;
+    //layoutParams.x + radius, layoutParams.y + radius + 35, duration, timeUntilNextCommand)
+    public SimulateTouchCommand(MyAccessibilityService service, CircleView circleView) {
         this.service = service;
-        this.x = x;
-        this.y = y;
-        this.duration = duration;
-        this.timeUntilNextCommand=timeUntilNextCommand;
-
+        this.circleData=circleView.createCircleData();
+        x=circleData.getX()+circleData.getRadius();
+        y=circleData.getY()+circleData.getRadius()+35;
+        duration=circleData.getDuration();
+        timeUntilNextCommand=circleData.getTimeUntilNextCommand();
     }
+
 
     @Override
     public void execute() {
         service.simulateTouch(x, y, duration,timeUntilNextCommand, new Runnable() {
             @Override
             public void run() {
-                // No need to call processNextCommand here, it's handled by BlockingQueue
             }
         });
     }
@@ -34,4 +36,16 @@ class SimulateTouchCommand implements Command {
     public int getTypeTag() {
         return 0;
     }
+
+    @Override
+    public CircleData getCircleData() {
+        return this.circleData;
+    }
+
+    @Override
+    public RectangleData getRectangleData() {
+        return new RectangleData();
+    }
+
+
 }

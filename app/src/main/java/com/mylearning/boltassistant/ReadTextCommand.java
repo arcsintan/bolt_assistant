@@ -33,6 +33,16 @@ public class ReadTextCommand implements Command {
         return typeTag;
     }
 
+    @Override
+    public CircleData getCircleData() {
+        return new CircleData();
+    }
+
+    @Override
+    public RectangleData getRectangleData() {
+        return new RectangleData();
+    }
+
     public boolean getResult() {
         return result;
     }

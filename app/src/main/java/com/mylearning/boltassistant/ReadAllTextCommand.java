@@ -29,4 +29,14 @@ public class ReadAllTextCommand implements Command {
     public int getTypeTag() {
         return typeTag;
     }
+
+    @Override
+    public CircleData getCircleData() {
+        return new CircleData();
+    }
+
+    @Override
+    public RectangleData getRectangleData() {
+        return new RectangleData();
+    }
 }

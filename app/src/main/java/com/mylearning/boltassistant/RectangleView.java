@@ -45,6 +45,7 @@ public class RectangleView extends AbstractShapeView {
         init();
     }
 
+
     public RectangleView(Context context, RectangleData rectangleData) {
         this(context, rectangleData.getX(), rectangleData.getY(), rectangleData.getWidth(), rectangleData.getHeight(), rectangleData.getIndex());
         this.date = rectangleData.getDate();
@@ -54,6 +55,12 @@ public class RectangleView extends AbstractShapeView {
         this.price = rectangleData.getPrice();
         this.pickup = rectangleData.getPickup();
         this.dropoff = rectangleData.getDropoff();
+    }
+    public RectangleData createRectangleData(){
+        //RectangleData(int x, int y, int width, int height, int index, String type, Date date, Date time,
+                //String category, float km, float price, String pickup, String dropoff) {
+        return new RectangleData(layoutParams.x, layoutParams.y, getViewWidth(), getViewHeight(),index, ShapeViewType.RECTANGLE.name(),
+                date, time, category, km, price, pickup, dropoff);
     }
 
     public RectangleView(Context context, int x, int y, AttributeSet attrs) {
@@ -209,7 +216,7 @@ public class RectangleView extends AbstractShapeView {
 
     @Override
     public void execute(MyAccessibilityService service) {
-        service.addCommand(new ReadAllTextInDepthCommand(service));
+        service.addCommand(new ReadAllTextInDepthCommand(service, this));
         // Your execution logic here
     }
 

@@ -70,7 +70,7 @@ public class TripDataManager {
                 int quality = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_QUALITY); // New column
 
                 Date pickupDateTime = new Date(pickupDateTimeMillis);
-                TripData tripData = new TripData(id, day, price, pickupDateTime, category, distance, addressStart, addressEnd, platform, tripType, quality);
+                TripData tripData = new TripData(id, day, price, pickupDateTime, category, distance, addressStart, addressEnd, platform, tripType, quality, success);
                 tripData.setTimestamp(timestamp);
                 tripData.setSuccess(success);
 
@@ -100,13 +100,13 @@ public class TripDataManager {
                 String addressStart = getStringFromCursor(cursor, TripDatabaseHelper.COLUMN_ADDRESS_START);
                 String addressEnd = getStringFromCursor(cursor, TripDatabaseHelper.COLUMN_ADDRESS_END);
                 long timestamp = getLongFromCursor(cursor, TripDatabaseHelper.COLUMN_TIMESTAMP);
-                boolean success = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_SUCCESS) == 1;
+                boolean success = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_SUCCESS)==1;
                 int platform = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_PLATFORM);
                 int tripType = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_TRIP_TYPE);
                 int quality = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_QUALITY); // New column
 
                 Date pickupDateTime = new Date(pickupDateTimeMillis);
-                TripData tripData = new TripData(id, day, price, pickupDateTime, category, distance, addressStart, addressEnd, platform, tripType, quality);
+                TripData tripData = new TripData(id, day, price, pickupDateTime, category, distance, addressStart, addressEnd, platform, tripType, quality, success);
                 tripData.setSuccess(success);
 
                 tripDataList.add(tripData);

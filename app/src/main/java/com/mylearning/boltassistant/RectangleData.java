@@ -26,6 +26,9 @@ public class RectangleData {
         this.index = index;
         this.type = type;
     }
+    public RectangleData(){
+        this(0, 0, 100, 100, 0 , "");
+    }
 
     // New constructor with additional fields
     public RectangleData(int x, int y, int width, int height, int index, String type, Date date, Date time, String category, float km, float price, String pickup, String dropoff) {

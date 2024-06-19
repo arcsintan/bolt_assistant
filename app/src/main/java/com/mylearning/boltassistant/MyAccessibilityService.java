@@ -3,7 +3,6 @@ package com.mylearning.boltassistant;
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.GestureDescription;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.os.Build;
@@ -30,15 +29,15 @@ public class MyAccessibilityService extends AccessibilityService {
     private static final String TAG = "MyAccessibilityService";
     private static MyAccessibilityService instance;
     private Handler handler;
-    private static List<Command> commandList = new ArrayList<>();
+    private  List<Command> commandList = new ArrayList<>();
     private boolean debugMode = false;
 
     private StringBuilder fullText = new StringBuilder(); // Store the full extracted text
     public Object lock = new Object();
     private StringBuilder allText = new StringBuilder();
 
-    private static volatile boolean shouldBeContinue = true;
-    private static volatile boolean runningStatus = false;
+    private  volatile boolean shouldAllCommandBeContinue = true;
+    private  volatile boolean runningStatus = false;
     private static Thread commandThread; // The thread running the commands
     private List<String> importantTextData = new ArrayList<>();
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -51,12 +50,7 @@ public class MyAccessibilityService extends AccessibilityService {
     }
 
     public static MyAccessibilityService getInstance() {
-        shouldBeContinue = true;
-        runningStatus=false;
-        if(commandThread!=null) {
-            commandThread.interrupt();
-        }
-        commandList.clear();
+
         return instance;
     }
 
@@ -74,6 +68,14 @@ public class MyAccessibilityService extends AccessibilityService {
     public void addCommand(Command command) {
         commandList.add(command);
     }
+    public void removeLastCommand(){
+        if(!commandList.isEmpty()){
+            commandList.remove(commandList.size()-1);
+        }
+    }
+    public void clearCommandList(){
+        commandList.clear();;
+    }
 
 
     public void executeAllCommands() {
@@ -87,11 +89,11 @@ public class MyAccessibilityService extends AccessibilityService {
         runningStatus = true;
         commandThread = new Thread(() -> {
             TripData preTripData=new TripData();
-            while (shouldBeContinue && !Thread.currentThread().isInterrupted()) {
+            while (shouldAllCommandBeContinue && !Thread.currentThread().isInterrupted()) {
                 TripData tripData = null;
                 for (int i = 0; i < commandList.size(); i++) {
                     try {
-                        if (!shouldBeContinue) {
+                        if (!shouldAllCommandBeContinue) {
                             break;
                         }
                         Command command = commandList.get(i); // Take the next command
@@ -119,6 +121,7 @@ public class MyAccessibilityService extends AccessibilityService {
                                     Boolean res = tripSelector.selectInput();
                                     tripData = tripSelector.getTripData();
                                     Log.d(TAG, res? "Acceptable" : "Rejected");
+
                                     if (tripData == null) {
                                         Log.e(TAG, "TripData is null after parsing");
                                     }
@@ -128,6 +131,7 @@ public class MyAccessibilityService extends AccessibilityService {
                                     }else tripData.setSuccess(true);
 
 
+
                                 } catch (IndexOutOfBoundsException e) {
                                     Log.e(TAG, "Error parsing importantTextData: " + e.getMessage());
                                 }
@@ -135,6 +139,7 @@ public class MyAccessibilityService extends AccessibilityService {
                         }
                     } catch (InterruptedException e) {
                         Log.e(TAG, "Command processing interrupted", e);
+                        shouldAllCommandBeContinue=false;
                         break; // Exit the loop if interrupted
                     }
                 }
@@ -159,6 +164,9 @@ public class MyAccessibilityService extends AccessibilityService {
                 }
 
             }
+            Log.d(TAG, "commandList size="+commandList.size());
+            Log.d(TAG, "should be continue value"+shouldAllCommandBeContinue);
+
         });
         commandThread.start();
         runningStatus = false;
@@ -168,7 +176,7 @@ public class MyAccessibilityService extends AccessibilityService {
 
 
     public void stopAllCommands() {
-        shouldBeContinue = false;
+        shouldAllCommandBeContinue = false;
         runningStatus=false;
         if (commandThread != null) {
             commandThread.interrupt();
@@ -416,7 +424,7 @@ public class MyAccessibilityService extends AccessibilityService {
 
 
     private void turnOnAllCommand() {
-        shouldBeContinue = true;
+        shouldAllCommandBeContinue = true;
     }
 
     @Override

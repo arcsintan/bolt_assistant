@@ -1,10 +1,17 @@
 package com.mylearning.boltassistant;
-public class ReadAllTextInDepthCommand implements Command {
+public class ReadAllTextInDepthCommand implements Command{
     private MyAccessibilityService service;
+    private RectangleData rectangleData;
+
     private final int typeTag=3;
+    public ReadAllTextInDepthCommand(MyAccessibilityService service, RectangleView rectangleView) {
+        this.service = service;
+        this.rectangleData=rectangleView.createRectangleData();
+    }
     public ReadAllTextInDepthCommand(MyAccessibilityService service) {
         this.service = service;
     }
+
 
     @Override
     public void execute() {
@@ -27,4 +34,16 @@ public class ReadAllTextInDepthCommand implements Command {
     public int getTypeTag() {
         return typeTag;
     }
+
+    @Override
+    public CircleData getCircleData() {
+        return null;
+    }
+
+    @Override
+    public RectangleData getRectangleData() {
+        return this.rectangleData;
+    }
+
+
 }
