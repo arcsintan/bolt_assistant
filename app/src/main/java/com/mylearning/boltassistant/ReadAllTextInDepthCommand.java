@@ -1,7 +1,7 @@
 package com.mylearning.boltassistant;
 public class ReadAllTextInDepthCommand implements Command {
     private MyAccessibilityService service;
-
+    private final int typeTag=3;
     public ReadAllTextInDepthCommand(MyAccessibilityService service) {
         this.service = service;
     }
@@ -11,6 +11,9 @@ public class ReadAllTextInDepthCommand implements Command {
         service.extractAllTextInDepth(new Runnable() {
             @Override
             public void run() {
+                synchronized (service.lock) {
+                    service.lock.notify(); // Notify the waiting thread that the operation is complete
+                }
             }
         });
     }
@@ -21,7 +24,7 @@ public class ReadAllTextInDepthCommand implements Command {
     }
 
     @Override
-    public int getType() {
-        return 3;
+    public int getTypeTag() {
+        return typeTag;
     }
 }

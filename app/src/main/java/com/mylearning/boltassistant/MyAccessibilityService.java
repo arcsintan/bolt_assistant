@@ -17,7 +17,6 @@ import com.mylearning.boltassistant.DataBase.TripDataManager;
 import com.mylearning.boltassistant.TripSelector.AbstractSelector;
 import com.mylearning.boltassistant.TripSelector.BoltNormal;
 import com.mylearning.boltassistant.TripSelector.TripData;
-import com.mylearning.boltassistant.TripSelector.TripDataParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,7 +113,7 @@ public class MyAccessibilityService extends AccessibilityService {
                             break;
                         }
                         Command command = commandList.get(i); // Take the next command
-                        if (command.getType() == 0) {
+                        if (command.getTypeTag() == 0) {
                             long startTime = System.currentTimeMillis();
                             synchronized (lock) {
                                 command.execute(); // Execute the command

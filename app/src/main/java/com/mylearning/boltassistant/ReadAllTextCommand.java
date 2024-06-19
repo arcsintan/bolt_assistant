@@ -1,6 +1,7 @@
 package com.mylearning.boltassistant;
 
 public class ReadAllTextCommand implements Command {
+    private final int typeTag=2;
     private MyAccessibilityService service;
     private boolean result;
 
@@ -25,7 +26,7 @@ public class ReadAllTextCommand implements Command {
     }
 
     @Override
-    public int getType() {
-        return 2;
+    public int getTypeTag() {
+        return typeTag;
     }
 }

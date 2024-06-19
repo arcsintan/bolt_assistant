@@ -6,7 +6,7 @@ public class ReadTextCommand implements Command {
     private MyAccessibilityService service;
     private Rect targetRect;
     private boolean result;
-
+    private final int typeTag=1;
     public ReadTextCommand(MyAccessibilityService service, Rect targetRect) {
         this.service = service;
         this.targetRect = targetRect;
@@ -29,8 +29,8 @@ public class ReadTextCommand implements Command {
     }
 
     @Override
-    public int getType() {
-        return 1;
+    public int getTypeTag() {
+        return typeTag;
     }
 
     public boolean getResult() {

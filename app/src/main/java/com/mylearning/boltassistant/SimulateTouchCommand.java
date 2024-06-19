@@ -31,7 +31,7 @@ class SimulateTouchCommand implements Command {
     }
 
     @Override
-    public int getType() {
+    public int getTypeTag() {
         return 0;
     }
 }
