@@ -4,6 +4,7 @@ import android.os.Build;
 import android.util.Log;
 
 import com.mylearning.boltassistant.MyLog;
+import com.mylearning.boltassistant.RectangleData;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -13,7 +14,7 @@ public class BoltNormal implements AbstractSelector {
     final String TAG="BoltNormal";
     private String text;
     List<String> importantTextData;
-
+RectangleData rectangleData;
     private int quality;
 
 
@@ -28,7 +29,8 @@ public class BoltNormal implements AbstractSelector {
         this.text = text;
     }
 
-    public BoltNormal(List<String> importantTextData) {
+    public BoltNormal(List<String> importantTextData, RectangleData rectangleData) {
+        this.rectangleData=rectangleData;
 
         this.importantTextData=importantTextData;
     }
@@ -36,6 +38,7 @@ public class BoltNormal implements AbstractSelector {
     @Override
     public boolean selectInput() {
         MyLog.d(TAG, "A request arrived: "+importantTextData.toString());
+        Log.d(TAG, "Reference Data is "+rectangleData.toString());
         analyzeText(importantTextData);
         return selected;
     }
@@ -51,17 +54,26 @@ public class BoltNormal implements AbstractSelector {
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 //            importantTextData.forEach(data -> MyLog.d(TAG, "Data: " + data));
 //        }
+
         tripData = TripDataParser.parse(importantTextData);
         //Log.d(TAG, tripData.toString());
         if(tripData.getCategory().contains("XL")){
             //Log.d(TAG, "an XL request arrived!");
+            if(tripData.getPickupDateTime().compareTo(rectangleData.getTime())>=0){
+                Log.d(TAG, tripData.getPickupDateTime().toString()+">"+rectangleData.getTime().toString() );
+                Log.d(TAG, "time is okay for XL");
+            }else{
+                Log.d(TAG, tripData.getPickupDateTime().toString()+"<"+rectangleData.getTime().toString() );
+            }
 
             selected=true;
         } else if (tripData.getCategory().contains("Bo")) {
-            //Log.d(TAG, "A Bolt trip receipt");
+            MyLog.d(TAG, "A Bolt trip receipt");
             if(checkDistance()&&checkTime() && checkPrice() && checkTime() && checkPickup()){
                 selected= true;
             }
+        }else{
+            MyLog.d(TAG, "Unknow category");
         }
     }
     public TripData getTripData() {
@@ -70,7 +82,7 @@ public class BoltNormal implements AbstractSelector {
 
     @Override
     public boolean checkDistance() {
-        if(tripData.getDistance()>8){
+        if(tripData.getPrice()/tripData.getDistance() <1.3){
             quality=2;
             return false;
         }
@@ -79,6 +91,11 @@ public class BoltNormal implements AbstractSelector {
 
     @Override
     public boolean checkTime() {
+        if(tripData.getPickupDateTime().compareTo(rectangleData.getTime())>=0){
+            Log.d(TAG, tripData.getPickupDateTime().toString()+">"+rectangleData.getTime().toString() );
+        }else{
+            Log.d(TAG, tripData.getPickupDateTime().toString()+"<"+rectangleData.getTime().toString() );
+        }
         return true;
     }
 

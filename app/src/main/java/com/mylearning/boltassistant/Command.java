@@ -19,5 +19,7 @@ public interface Command {
     void execute();
     int getTimeUntilNextCommand();
     int getTypeTag();
+    CircleData getCircleData();
+    RectangleData getRectangleData();
 
 }

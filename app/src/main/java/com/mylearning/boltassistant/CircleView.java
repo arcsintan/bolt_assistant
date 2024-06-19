@@ -33,6 +33,9 @@ public class CircleView extends AbstractShapeView {
 
         init();
     }
+    public CircleData createCircleData(){
+        return new CircleData(layoutParams.x, layoutParams.y, radius, duration, timeUntilNextCommand, index, ShapeViewType.CIRCLE.name());
+    }
 
     @Override
     public void handleBroadcast(Intent intent) {
@@ -157,7 +160,7 @@ public class CircleView extends AbstractShapeView {
 
     @Override
     public void execute(MyAccessibilityService service) {
-        service.addCommand(new SimulateTouchCommand(service, layoutParams.x + radius, layoutParams.y + radius + 35, duration, timeUntilNextCommand));
+        service.addCommand(new SimulateTouchCommand(service, this));
     }
 
     @Override

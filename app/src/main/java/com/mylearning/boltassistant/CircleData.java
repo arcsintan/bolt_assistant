@@ -21,7 +21,9 @@ public  class CircleData {
         this.index = index;
         this.type=type;
     }
-
+public CircleData(){
+        this(0 ,0, 0, 0, 0, 0, "");
+}
 
     public int getX() {
         return x;
