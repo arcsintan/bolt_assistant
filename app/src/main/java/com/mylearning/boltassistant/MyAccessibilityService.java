@@ -165,7 +165,7 @@ public class MyAccessibilityService extends AccessibilityService {
 
             }
             Log.d(TAG, "commandList size="+commandList.size());
-            Log.d(TAG, "should be continue value"+shouldAllCommandBeContinue);
+            Log.d(TAG, "should be continue value= "+shouldAllCommandBeContinue);
 
         });
         commandThread.start();

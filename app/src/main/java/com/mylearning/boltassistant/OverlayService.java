@@ -1,6 +1,5 @@
 package com.mylearning.boltassistant;
 
-import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -137,9 +136,12 @@ public class OverlayService extends Service {
     private void handlePlayButtonClick() {
         if (!is_running_loop){
         MyAccessibilityService service = MyAccessibilityService.getInstance();
+        // clearing all commands before each run
+        service.clearCommandList();
 
             if (service != null) {
                 for (AbstractShapeView shapeView : shapeViews) {
+
                     shapeView.execute(service);
                 }
                 MyLog.d(TAG, Thread.currentThread().getName());
@@ -158,7 +160,7 @@ public class OverlayService extends Service {
     }
 
     private void handleAddCircleButtonClick() {
-        CircleView newCircle = new CircleView(getApplicationContext(), centerX, centerY, 50, 150, 500, shapeViews.size() + 1);
+        CircleView newCircle = new CircleView(getApplicationContext(), centerX, centerY, 50, 50, 200, shapeViews.size() + 1);
         shapeViews.add(newCircle);
         addShapeView(newCircle);
         Log.d(TAG, "Add Button clicked, new circle added");
@@ -202,8 +204,11 @@ public class OverlayService extends Service {
     private void handleRemoveButtonClick() {
         if (!shapeViews.isEmpty()) {
             AbstractShapeView shapeView = shapeViews.pollLast();
+            MyAccessibilityService service=MyAccessibilityService.getInstance();
+            service.removeLastCommand();
+            Log.d(TAG, shapeView.toString());
             windowManager.removeView(shapeView);
-            Log.d(TAG, "Remove Button clicked, shape removed from the end");
+
         } else {
             Log.d(TAG, "Remove Button clicked, but no shapes to remove");
             Toast.makeText(this, "No shapes to remove", Toast.LENGTH_SHORT).show();
