@@ -128,9 +128,7 @@ public class SetRectangleValuesActivity extends Activity {
             public void onClick(View v) {
                 Log.d(TAG," A broadcast for Updating the Rectangle Data is prepared");
                 sendUpdateBroadcast();
-
                 Toast.makeText(SetRectangleValuesActivity.this, "Values updated", Toast.LENGTH_SHORT).show();
-                is_running=false;
                 finish();
             }
         });
@@ -139,7 +137,6 @@ public class SetRectangleValuesActivity extends Activity {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                is_running=false;
                 finish();
             }
         });
@@ -208,6 +205,11 @@ public class SetRectangleValuesActivity extends Activity {
     private void updateTimeEditText() {
         timeEditText.setText(String.format("%02d:%02d", calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
+    }
+    public void finish(){
+        is_running=false;
+        super.finish();
+
     }
     @Override
     protected void onPause() {

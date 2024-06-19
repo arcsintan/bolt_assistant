@@ -57,7 +57,6 @@ public class SetCircleValuesActivity extends Activity {
                     sendUpdateBroadcast(duration, timeUntilNextCommand);
 
                     Toast.makeText(SetCircleValuesActivity.this, "Values updated", Toast.LENGTH_SHORT).show();
-                    is_running=false;
                     finish();
                 } catch (NumberFormatException e) {
                     Toast.makeText(SetCircleValuesActivity.this, "Invalid input", Toast.LENGTH_SHORT).show();
@@ -69,11 +68,14 @@ public class SetCircleValuesActivity extends Activity {
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                is_running=false;
                 finish();
             }
         });
         is_running=true;
+    }
+    public void finish(){
+        is_running=false;
+        super.finish();
     }
 
     private void sendUpdateBroadcast(int duration, int timeUntilNextCommand) {
