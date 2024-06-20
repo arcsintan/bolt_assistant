@@ -2,11 +2,11 @@ package com.mylearning.boltassistant.TripSelector;
 
 public class CompleteTripDataBolt {
     /*
-    - Class Name: android.view.ViewGroup, Text: null
- -- Class Name: android.widget.ImageButton, Text: null
+- Class Name: android.view.ViewGroup, Text: null
+-- Class Name: android.widget.ImageButton, Text: null
 -- Class Name: android.widget.TextView, Text: Request
- -- Class Name: androidx.recyclerview.widget.RecyclerView, Text: null
- --- Class Name: android.view.ViewGroup, Text: null
+-- Class Name: androidx.recyclerview.widget.RecyclerView, Text: null
+--- Class Name: android.view.ViewGroup, Text: null
 ---- Class Name: android.widget.TextView, Text: 18.13€ • Sun, 23 June, 08:00
 ---- Class Name: android.widget.TextView, Text: Bolt
 ---- Class Name: android.widget.TextView, Text: 23.7km
