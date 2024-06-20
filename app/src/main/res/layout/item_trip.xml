@@ -41,7 +41,7 @@
                     android:id="@+id/textPickupDateTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Pickup DateTime"
+                    android:text="Pickup Time"
                     android:textColor="@android:color/black"
                     android:clickable="true" />
             </LinearLayout>
@@ -61,10 +61,10 @@
                     android:layout_marginEnd="8dp" />
 
                 <TextView
-                    android:id="@+id/textTimestamp"
+                    android:id="@+id/textOrderTime"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Timestamp"
+                    android:text="Order time:"
                     android:textColor="@android:color/black"
                     android:clickable="true" />
             </LinearLayout>
