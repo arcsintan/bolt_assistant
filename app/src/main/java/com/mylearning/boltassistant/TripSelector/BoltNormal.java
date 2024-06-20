@@ -39,8 +39,10 @@ RectangleData rectangleData;
     public boolean selectInput() {
         MyLog.d(TAG, "A request arrived: "+importantTextData.toString());
         Log.d(TAG, "Reference Data is "+rectangleData.toString());
+
         analyzeText(importantTextData);
-        return selected;
+        return true;
+        //return selected;
     }
 
     @Override

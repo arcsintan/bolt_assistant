@@ -5,6 +5,7 @@ class SimulateTouchCommand implements Command {
     private float x, y;
     private int duration;
     private int timeUntilNextCommand;
+    private int radius;
     public CircleData circleData;
     public RectangleData rectangleData;
     //layoutParams.x + radius, layoutParams.y + radius + 35, duration, timeUntilNextCommand)
@@ -13,6 +14,7 @@ class SimulateTouchCommand implements Command {
         this.circleData=circleView.createCircleData();
         x=circleData.getX()+circleData.getRadius();
         y=circleData.getY()+circleData.getRadius()+35;
+        radius=circleData.getRadius();
         duration=circleData.getDuration();
         timeUntilNextCommand=circleData.getTimeUntilNextCommand();
     }
@@ -20,7 +22,7 @@ class SimulateTouchCommand implements Command {
 
     @Override
     public void execute() {
-        service.simulateTouch(x, y, duration,timeUntilNextCommand, new Runnable() {
+        service.simulateTouch(x, y,radius, duration, new Runnable() {
             @Override
             public void run() {
             }

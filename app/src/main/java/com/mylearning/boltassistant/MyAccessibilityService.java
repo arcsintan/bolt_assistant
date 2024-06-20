@@ -113,22 +113,27 @@ public class MyAccessibilityService extends AccessibilityService {
                             synchronized (lock) {
                                 command.execute(); // Execute the command and wait for it to complete
                                 lock.wait(); // Wait for the command to finish
-                                if (importantTextData.size() < 4) break;
+                                logViewHierarchy();
+
+                                if (importantTextData.size()<6){
+                                    Log.d(TAG,"important data="+importantTextData.toString());
+                                    break;
+                                };
 
                                 try {
-                                    RectangleData rectangleData=command.getRectangleData();
+                                    RectangleData rectangleData = command.getRectangleData();
                                     AbstractSelector tripSelector = new BoltNormal(importantTextData, rectangleData);
                                     Boolean res = tripSelector.selectInput();
                                     tripData = tripSelector.getTripData();
-                                    Log.d(TAG, res? "Acceptable" : "Rejected");
+                                    Log.d(TAG, res ? "Acceptable" : "Rejected");
 
                                     if (tripData == null) {
                                         Log.e(TAG, "TripData is null after parsing");
                                     }
-                                    if(!res){
+                                    if (!res) {
                                         tripData.setSuccess(false);
                                         break;
-                                    }else tripData.setSuccess(true);
+                                    } else tripData.setSuccess(true);
 
 
 
@@ -142,6 +147,7 @@ public class MyAccessibilityService extends AccessibilityService {
                         shouldAllCommandBeContinue=false;
                         break; // Exit the loop if interrupted
                     }
+                    Log.d(TAG, "Command["+i+"]");
                 }
                 if (tripData != null &&  !tripData.equals(preTripData)) {
 
@@ -366,7 +372,7 @@ public class MyAccessibilityService extends AccessibilityService {
             Log.d(TAG, viewHierarchy);
         }
     }
-    public void simulateTouch(float x, float y, int duration, int timeUntilNextCommand, Runnable callback) {
+    public void simulateTouch(float x, float y, int radius, int duration, Runnable callback) {
         //Log.d(TAG, Thread.currentThread().getName());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Path path = new Path();
