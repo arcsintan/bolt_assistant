@@ -4,7 +4,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.Uri;
 import android.provider.CalendarContract;
@@ -83,9 +82,9 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
 
     private void copyToClipboard(Context context, TripData tripData) {
         ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-        String tripDataString = String.format("Pickup DateTime: %s\nTimestamp: %s\nCategory: %s\nDistance: %.2f km\nNet Price: €%.2f\nNet Price per Distance: €%.2f/km\nPickup Point: %s\nDropoff Point: %s",
+        String tripDataString = String.format("Pickup DateTime: %s\nOrder Time: %s\nCategory: %s\nDistance: %.2f km\nNet Price: €%.2f\nNet Price per Distance: €%.2f/km\nPickup Point: %s\nDropoff Point: %s",
                 new SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault()).format(tripData.getPickupDateTime()),
-                new SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault()).format(new Date(tripData.getTimestamp())),
+                new SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault()).format(tripData.getOrderTime()),
                 tripData.getCategory(),
                 tripData.getDistance(),
                 tripData.getPrice() * 0.75f,
@@ -108,7 +107,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
 
     static class TripViewHolder extends RecyclerView.ViewHolder {
         private final TextView pickupDateTimeTextView;
-        private final TextView timestampTextView;
+        private final TextView orderTimeTextView;
         private final TextView categoryTextView;
         private final TextView distanceTextView;
         private final TextView netPriceTextView;
@@ -123,7 +122,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
             pickupDateTimeContainer = itemView.findViewById(R.id.pickupDateTimeContainer);
             cardView = itemView.findViewById(R.id.cardView);
             pickupDateTimeTextView = itemView.findViewById(R.id.textPickupDateTime);
-            timestampTextView = itemView.findViewById(R.id.textTimestamp);
+            orderTimeTextView = itemView.findViewById(R.id.textOrderTime);
             categoryTextView = itemView.findViewById(R.id.textCategory);
             distanceTextView = itemView.findViewById(R.id.textDistance);
             netPriceTextView = itemView.findViewById(R.id.textNetPrice);
@@ -135,10 +134,10 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
         public void bind(TripData tripData, OnItemClickListener listener) {
             SimpleDateFormat sdf = new SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault());
             String pickupDateTime = sdf.format(tripData.getPickupDateTime());
-            String timestamp = sdf.format(new Date(tripData.getTimestamp()));
+            String orderTime = sdf.format(tripData.getOrderTime());
 
             pickupDateTimeTextView.setText(pickupDateTime);
-            timestampTextView.setText(timestamp);
+            orderTimeTextView.setText(orderTime);
             categoryTextView.setText(tripData.getCategory() + ", ");
             distanceTextView.setText(String.format(Locale.getDefault(), "%.1f km.", tripData.getDistance()));
 

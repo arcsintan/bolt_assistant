@@ -1,8 +1,5 @@
 package com.mylearning.boltassistant.TripSelector;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
-import java.util.Random;
 import java.util.Date;
 
 public class TripData  {
@@ -13,16 +10,14 @@ public class TripData  {
     private float distance;
     private String addressStart;
     private String addressEnd;
-
-
-
-    private long timestamp;
+    private Date orderTime; // Change the type to Date
     private boolean success;
     private int platform; // 0 or 1
     private int tripType; // 0 or 1
     private int quality;  // New field
     private long id; // Add this field
-    // Other fields...
+
+    // Updated constructor
     public TripData(String day, float price, Date pickupDateTime, String category, float distance, String addressStart, String addressEnd, int platform, int tripType, int quality) {
         this.day = day;
         this.price = price;
@@ -31,7 +26,7 @@ public class TripData  {
         this.distance = distance;
         this.addressStart = addressStart;
         this.addressEnd = addressEnd;
-        this.timestamp = System.currentTimeMillis();
+        this.orderTime = new Date(); // Initialize to current date and time
 
         this.success = false;
         this.platform = platform;
@@ -39,8 +34,8 @@ public class TripData  {
         this.quality = quality;
     }
 
-
-    public TripData(long id, String day, float price, Date pickupDateTime, String category, float distance, String addressStart, String addressEnd, int platform, int tripType, int quality, boolean success) {
+    // Updated constructor
+    public TripData(long id, String day, float price, Date pickupDateTime,Date orderTime,  String category, float distance, String addressStart, String addressEnd, int platform, int tripType, int quality, boolean success) {
         this.day = day;
         this.price = price;
         this.pickupDateTime = pickupDateTime;
@@ -48,23 +43,24 @@ public class TripData  {
         this.distance = distance;
         this.addressStart = addressStart;
         this.addressEnd = addressEnd;
-        this.timestamp = System.currentTimeMillis();
-        this.success =success;
+        this.orderTime = orderTime;// Initialize to current date and time
+        this.success = success;
         this.platform = platform;
         this.tripType = tripType;
         this.quality = quality;
         this.id = id;
     }
 
+    // Default constructor
     public TripData(){
         this.day = "";
         this.price = 0;
-        this.pickupDateTime =new Date();
+        this.pickupDateTime = new Date();
         this.category = "";
         this.distance = 0;
         this.addressStart = "";
         this.addressEnd = "";
-        this.timestamp = System.currentTimeMillis();
+        this.orderTime = new Date(); // Initialize to current date and time
 
         this.success = false;
         this.platform = 2;
@@ -72,10 +68,16 @@ public class TripData  {
         this.quality = 4;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    // Getter and setter for timestamp
+    public Date getOrderTime() {
+        return orderTime;
     }
-    // Getters and Setters
+
+    public void setOrderTime(Date orderTime) {
+        this.orderTime = orderTime;
+    }
+
+    // Getters and Setters for other fields
     public long getId() {
         return id;
     }
@@ -83,7 +85,6 @@ public class TripData  {
     public void setId(long id) {
         this.id = id;
     }
-    // Getters and Setters
 
     public void setSuccess(boolean success) {
         this.success = success;
@@ -117,10 +118,6 @@ public class TripData  {
         return addressEnd;
     }
 
-    public long getTimestamp() {
-        return timestamp;
-    }
-
     public boolean isSuccess() {
         return success;
     }
@@ -151,7 +148,7 @@ public class TripData  {
                 ", distance=" + distance +
                 ", addressStart='" + addressStart + '\'' +
                 ", addressEnd='" + addressEnd + '\'' +
-                ", timestamp=" + timestamp +
+                ", orderTime=" + orderTime +
                 ", success=" + success +
                 ", platform=" + platform +
                 ", tripType=" + tripType +
@@ -160,14 +157,13 @@ public class TripData  {
     }
 
     @Override
-    public boolean equals( Object obj) {
-        if(obj==null)return false;
+    public boolean equals(Object obj) {
+        if (obj == null) return false;
         if (!(obj instanceof TripData)) {
-        return false;
+            return false;
         }
 
-        TripData anotherTripData= (TripData) obj;
-        return this.distance==anotherTripData.distance && this.price==anotherTripData.price && this.price== anotherTripData.price;
-
+        TripData anotherTripData = (TripData) obj;
+        return this.distance == anotherTripData.distance && this.price == anotherTripData.price && this.price == anotherTripData.price;
     }
 }

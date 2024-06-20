@@ -40,7 +40,7 @@ public class TripDataManager {
         values.put(TripDatabaseHelper.COLUMN_DISTANCE, tripData.getDistance());
         values.put(TripDatabaseHelper.COLUMN_ADDRESS_START, tripData.getAddressStart());
         values.put(TripDatabaseHelper.COLUMN_ADDRESS_END, tripData.getAddressEnd());
-        values.put(TripDatabaseHelper.COLUMN_TIMESTAMP, tripData.getTimestamp());
+        values.put(TripDatabaseHelper.COLUMN_ORDER_TIME, tripData.getOrderTime().getTime());
         values.put(TripDatabaseHelper.COLUMN_SUCCESS, tripData.isSuccess() ? 1 : 0);
         values.put(TripDatabaseHelper.COLUMN_PLATFORM, tripData.getPlatform());
         values.put(TripDatabaseHelper.COLUMN_TRIP_TYPE, tripData.getTripType());
@@ -63,17 +63,15 @@ public class TripDataManager {
                 float distance = getFloatFromCursor(cursor, TripDatabaseHelper.COLUMN_DISTANCE);
                 String addressStart = getStringFromCursor(cursor, TripDatabaseHelper.COLUMN_ADDRESS_START);
                 String addressEnd = getStringFromCursor(cursor, TripDatabaseHelper.COLUMN_ADDRESS_END);
-                long timestamp = getLongFromCursor(cursor, TripDatabaseHelper.COLUMN_TIMESTAMP);
+                long orderTimeMillis = getLongFromCursor(cursor, TripDatabaseHelper.COLUMN_ORDER_TIME);
                 boolean success = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_SUCCESS) == 1;
                 int platform = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_PLATFORM);
                 int tripType = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_TRIP_TYPE);
                 int quality = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_QUALITY); // New column
 
                 Date pickupDateTime = new Date(pickupDateTimeMillis);
-                TripData tripData = new TripData(id, day, price, pickupDateTime, category, distance, addressStart, addressEnd, platform, tripType, quality, success);
-                tripData.setTimestamp(timestamp);
-                tripData.setSuccess(success);
-
+                Date orderTime = new Date(orderTimeMillis);
+                TripData tripData = new TripData(id, day, price, pickupDateTime, orderTime, category, distance, addressStart, addressEnd, platform, tripType, quality, success);
                 tripDataList.add(tripData);
             } while (cursor.moveToNext());
         }
@@ -99,16 +97,15 @@ public class TripDataManager {
                 float distance = getFloatFromCursor(cursor, TripDatabaseHelper.COLUMN_DISTANCE);
                 String addressStart = getStringFromCursor(cursor, TripDatabaseHelper.COLUMN_ADDRESS_START);
                 String addressEnd = getStringFromCursor(cursor, TripDatabaseHelper.COLUMN_ADDRESS_END);
-                long timestamp = getLongFromCursor(cursor, TripDatabaseHelper.COLUMN_TIMESTAMP);
-                boolean success = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_SUCCESS)==1;
+                long orderTimeMillis = getLongFromCursor(cursor, TripDatabaseHelper.COLUMN_ORDER_TIME);
+                boolean success = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_SUCCESS) == 1;
                 int platform = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_PLATFORM);
                 int tripType = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_TRIP_TYPE);
                 int quality = getIntFromCursor(cursor, TripDatabaseHelper.COLUMN_QUALITY); // New column
 
                 Date pickupDateTime = new Date(pickupDateTimeMillis);
-                TripData tripData = new TripData(id, day, price, pickupDateTime, category, distance, addressStart, addressEnd, platform, tripType, quality, success);
-                tripData.setSuccess(success);
-
+                Date orderTime = new Date(orderTimeMillis);
+                TripData tripData = new TripData(id, day, price, pickupDateTime, orderTime, category, distance, addressStart, addressEnd, platform, tripType, quality, success);
                 tripDataList.add(tripData);
             } while (cursor.moveToNext());
         }
@@ -176,6 +173,7 @@ public class TripDataManager {
             return false;
         }
     }
+
     public long deleteTripData(long id) {
         return database.delete(TripDatabaseHelper.TABLE_NAME, TripDatabaseHelper.COLUMN_ID + "=?", new String[]{String.valueOf(id)});
     }
@@ -195,8 +193,8 @@ public class TripDataManager {
             return false;
         }
     }
+
     public void deleteAllTripData() {
         database.delete(TripDatabaseHelper.TABLE_NAME, null, null);
     }
-
 }

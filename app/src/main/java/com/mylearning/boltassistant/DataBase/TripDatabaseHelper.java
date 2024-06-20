@@ -17,7 +17,7 @@ public class TripDatabaseHelper extends SQLiteOpenHelper {
     public static final String COLUMN_DISTANCE = "distance";
     public static final String COLUMN_ADDRESS_START = "address_start";
     public static final String COLUMN_ADDRESS_END = "address_end";
-    public static final String COLUMN_TIMESTAMP = "timestamp";
+    public static final String COLUMN_ORDER_TIME = "order_time";
     public static final String COLUMN_SUCCESS = "success";
     public static final String COLUMN_PLATFORM = "platform";
     public static final String COLUMN_TRIP_TYPE = "trip_type";
@@ -33,7 +33,7 @@ public class TripDatabaseHelper extends SQLiteOpenHelper {
                     COLUMN_DISTANCE + " REAL, " +
                     COLUMN_ADDRESS_START + " TEXT, " +
                     COLUMN_ADDRESS_END + " TEXT, " +
-                    COLUMN_TIMESTAMP + " INTEGER, " +
+                    COLUMN_ORDER_TIME + " INTEGER, " +
                     COLUMN_SUCCESS + " INTEGER, " +
                     COLUMN_PLATFORM + " INTEGER, " +
                     COLUMN_TRIP_TYPE + " INTEGER, " +
