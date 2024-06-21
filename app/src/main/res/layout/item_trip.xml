@@ -31,11 +31,11 @@
                 android:padding="8dp">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_trip_time"
+                    android:layout_width="20dp"
+                    android:layout_height="21dp"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="8dp" />
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_pickup_time" />
 
                 <TextView
                     android:id="@+id/textPickupDateTime"
@@ -85,11 +85,11 @@
                 android:padding="8dp">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_car"
+                    android:layout_width="19dp"
+                    android:layout_height="21dp"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="8dp" />
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_car" />
 
                 <TextView
                     android:id="@+id/textCategory"
@@ -114,8 +114,8 @@
                 android:padding="8dp">
 
                 <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="18dp"
+                    android:layout_height="20dp"
                     android:layout_gravity="center_vertical"
                     android:layout_marginEnd="8dp"
                     android:src="@drawable/ic_money" />
@@ -177,9 +177,9 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_dropoff"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="8dp" />
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_dropoff" />
 
                 <TextView
                     android:id="@+id/textAddressEnd"
