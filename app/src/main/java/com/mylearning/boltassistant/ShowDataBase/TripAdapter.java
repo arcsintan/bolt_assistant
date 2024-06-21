@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.provider.AlarmClock;
 import android.provider.CalendarContract;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,6 +26,7 @@ import com.mylearning.boltassistant.R;
 import com.mylearning.boltassistant.TripSelector.TripData;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -105,7 +108,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
         return tripDataList.size();
     }
 
-    static class TripViewHolder extends RecyclerView.ViewHolder {
+    class TripViewHolder extends RecyclerView.ViewHolder {
         private final TextView pickupDateTimeTextView;
         private final TextView orderTimeTextView;
         private final TextView categoryTextView;
@@ -166,10 +169,10 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
                 pickupDateTimeContainer.setBackgroundColor(Color.rgb(255, 235, 59));
             }
 
-            // Set click listeners
-            pickupDateTimeTextView.setOnClickListener(v -> addEventToCalendar(v.getContext(), tripData));
-            addressStartTextView.setOnClickListener(v -> openLocationInMap(v.getContext(), tripData.getAddressStart()));
-            addressEndTextView.setOnClickListener(v -> openLocationInMap(v.getContext(), tripData.getAddressEnd()));
+            // Set click listener to show dialog with options
+            pickupDateTimeTextView.setOnClickListener(v -> showOptionsDialog(v.getContext(), tripData));
+            addressStartTextView.setOnClickListener(v -> showNavigationDialog(v.getContext(), tripData.getAddressStart()));
+            addressEndTextView.setOnClickListener(v -> showNavigationDialog(v.getContext(), tripData.getAddressEnd()));
 
             // Set long press listener to show context menu
             itemView.setOnLongClickListener(v -> {
@@ -178,43 +181,112 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
             });
         }
 
-        private void openLocationInMap(Context context, String address) {
-            try {
-                Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + Uri.encode(address));
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
+        private void openLocationInGoogleMaps(Context context, String address) {
+            Uri gmmIntentUri = Uri.parse("geo:0,0?q=" + Uri.encode(address));
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+            mapIntent.setPackage("com.google.android.apps.maps");
 
-                // Check if Google Maps is installed
-                if (mapIntent.resolveActivity(context.getPackageManager()) != null) {
-                    context.startActivity(mapIntent);
-                } else {
-                    // If Google Maps is not installed, try Waze
-                    Uri wazeUri = Uri.parse("https://waze.com/ul?q=" + Uri.encode(address));
-                    Intent wazeIntent = new Intent(Intent.ACTION_VIEW, wazeUri);
-                    wazeIntent.setPackage("com.waze");
-
-                    if (wazeIntent.resolveActivity(context.getPackageManager()) != null) {
-                        context.startActivity(wazeIntent);
-                    } else {
-                        Toast.makeText(context, "No map applications available", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            } catch (Exception e) {
-                Toast.makeText(context, "Error opening map application", Toast.LENGTH_SHORT).show();
+            if (mapIntent.resolveActivity(context.getPackageManager()) != null) {
+                context.startActivity(mapIntent);
+            } else {
+                Toast.makeText(context, "Google Maps app not found", Toast.LENGTH_SHORT).show();
             }
         }
 
+        private void openLocationInWaze(Context context, String address) {
+            Uri wazeUri = Uri.parse("https://waze.com/ul?q=" + Uri.encode(address));
+            Intent wazeIntent = new Intent(Intent.ACTION_VIEW, wazeUri);
+            wazeIntent.setPackage("com.waze");
+
+            if (wazeIntent.resolveActivity(context.getPackageManager()) != null) {
+                context.startActivity(wazeIntent);
+            } else {
+                Toast.makeText(context, "Waze app not found", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        private void showOptionsDialog(Context context, TripData tripData) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle("Choose an action")
+                    .setItems(new String[]{"Add to Calendar", "Set Alarm"}, (dialog, which) -> {
+                        switch (which) {
+                            case 0:
+                                addEventToCalendar(context, tripData);
+                                break;
+                            case 1:
+                                setAlarmForPickup(context, tripData);
+                                break;
+                        }
+                    })
+                    .show();
+        }
+
+        private void showNavigationDialog(Context context, String address) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle("Choose an action")
+                    .setItems(new String[]{"Open in Google Maps", "Open in Waze"}, (dialog, which) -> {
+                        switch (which) {
+                            case 0:
+                                openLocationInGoogleMaps(context, address);
+                                break;
+                            case 1:
+                                openLocationInWaze(context, address);
+                                break;
+                        }
+                    })
+                    .show();
+        }
+
         private void addEventToCalendar(Context context, TripData tripData) {
-            Intent intent = new Intent(Intent.ACTION_INSERT);
-            intent.setData(CalendarContract.Events.CONTENT_URI);
-            intent.putExtra(CalendarContract.Events.TITLE, "Trip Pickup");
-            intent.putExtra(CalendarContract.Events.DESCRIPTION, "Trip from " + tripData.getAddressStart() + " to " + tripData.getAddressEnd());
-            intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, tripData.getPickupDateTime().getTime());
-            intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, tripData.getPickupDateTime().getTime() + 60 * 60 * 1000); // Assume 1 hour duration
+            try {
+                // Prepare the start and end times in the required format
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss", Locale.getDefault());
+                String startTime = sdf.format(tripData.getPickupDateTime());
+                String endTime = sdf.format(new Date(tripData.getPickupDateTime().getTime() + 60 * 60 * 1000)); // Assume 1 hour duration
+
+                // Construct the Google Calendar event URL
+                Uri.Builder builder = Uri.parse("https://www.google.com/calendar/render").buildUpon();
+                builder.appendQueryParameter("action", "TEMPLATE");
+                builder.appendQueryParameter("text", "Trip Pickup");
+                builder.appendQueryParameter("dates", startTime + "/" + endTime);
+                builder.appendQueryParameter("details", "Trip from " + tripData.getAddressStart() + " to " + tripData.getAddressEnd());
+                builder.appendQueryParameter("location", tripData.getAddressStart() + " to " + tripData.getAddressEnd());
+                builder.appendQueryParameter("trp", "true"); // To specify a reminder
+
+                // Create an intent to view the URL
+                Intent intent = new Intent(Intent.ACTION_VIEW)
+                        .setData(builder.build());
+
+                // Check if an app can handle this intent
+                if (intent.resolveActivity(context.getPackageManager()) != null) {
+                    context.startActivity(intent);
+                } else {
+                    Toast.makeText(context, "No application found to handle the event", Toast.LENGTH_SHORT).show();
+                }
+            } catch (Exception e) {
+                Toast.makeText(context, "Error adding event to Google Calendar", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        private void setAlarmForPickup(Context context, TripData tripData) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(tripData.getPickupDateTime());
+
+            // Subtract one hour from the pickup time
+            calendar.add(Calendar.HOUR_OF_DAY, -1);
+
+            int hour = calendar.get(Calendar.HOUR_OF_DAY);
+            int minute = calendar.get(Calendar.MINUTE);
+
+            Intent intent = new Intent(AlarmClock.ACTION_SET_ALARM)
+                    .putExtra(AlarmClock.EXTRA_HOUR, hour)
+                    .putExtra(AlarmClock.EXTRA_MINUTES, minute)
+                    .putExtra(AlarmClock.EXTRA_MESSAGE, "Trip Pickup Reminder");
+
             if (intent.resolveActivity(context.getPackageManager()) != null) {
                 context.startActivity(intent);
             } else {
-                Toast.makeText(context, "No calendar app found", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "No clock app found", Toast.LENGTH_SHORT).show();
             }
         }
     }
