@@ -102,7 +102,7 @@
                     android:id="@+id/textDistance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text=", Distance (KM)"
+                    android:text=", km"
                     android:textColor="@android:color/black" />
             </LinearLayout>
 
@@ -116,24 +116,24 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_money"
                     android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="8dp" />
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_money" />
 
                 <TextView
                     android:id="@+id/textNetPrice"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Net Price (EUR)"
+                    android:text="Net (€), "
                     android:textColor="@android:color/black" />
 
                 <TextView
                     android:id="@+id/textNetPricePerDistance"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Net Price/KM"
+                    android:text="€/km"
                     android:textColor="@android:color/black"
-                    android:padding="8dp" />
+                    android:padding="4dp" />
             </LinearLayout>
         </LinearLayout>
 
