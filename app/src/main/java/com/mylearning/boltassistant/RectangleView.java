@@ -216,7 +216,7 @@ public class RectangleView extends AbstractShapeView {
 
     @Override
     public void execute(MyAccessibilityService service) {
-        service.addCommand(new ReadAllTextInDepthCommand(service, this));
+        service.addCommand(new ReadAllTextInAllDepthCommand(service, this));
         // Your execution logic here
     }
 
