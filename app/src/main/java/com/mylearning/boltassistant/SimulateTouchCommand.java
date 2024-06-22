@@ -22,7 +22,7 @@ class SimulateTouchCommand implements Command {
 
     @Override
     public void execute() {
-        service.simulateTouch(x, y,radius, duration, new Runnable() {
+        service.simulateTouch(x, y, duration, timeUntilNextCommand, new Runnable() {
             @Override
             public void run() {
             }
