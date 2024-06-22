@@ -241,8 +241,17 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
             try {
                 // Prepare the start and end times in the required format
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HHmmss", Locale.getDefault());
-                String startTime = sdf.format(tripData.getPickupDateTime());
-                String endTime = sdf.format(new Date(tripData.getPickupDateTime().getTime() + 60 * 60 * 1000)); // Assume 1 hour duration
+
+                // Get the pickup time and adjust for the start time (1 hour before pickup)
+                Date pickupDateTime = tripData.getPickupDateTime();
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTime(pickupDateTime);
+                calendar.add(Calendar.HOUR, -1);
+                Date oneHourBeforePickup = calendar.getTime();
+
+                // Format the start and end times
+                String startTime = sdf.format(oneHourBeforePickup);
+                String endTime = sdf.format(pickupDateTime);
 
                 // Construct the Google Calendar event URL
                 Uri.Builder builder = Uri.parse("https://www.google.com/calendar/render").buildUpon();
@@ -267,6 +276,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
                 Toast.makeText(context, "Error adding event to Google Calendar", Toast.LENGTH_SHORT).show();
             }
         }
+
 
         private void setAlarmForPickup(Context context, TripData tripData) {
             Calendar calendar = Calendar.getInstance();
