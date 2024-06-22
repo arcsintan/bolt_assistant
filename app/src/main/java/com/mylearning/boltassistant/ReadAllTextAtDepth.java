@@ -1,19 +1,20 @@
 package com.mylearning.boltassistant;
-public class ReadAllTextInDepthCommand implements Command{
+public class ReadAllTextAtDepth implements Command{
     private MyAccessibilityService service;
     private RectangleData rectangleData;
 
     private final int typeTag=3;
-    public ReadAllTextInDepthCommand(MyAccessibilityService service, RectangleView rectangleView) {
+    public ReadAllTextAtDepth(MyAccessibilityService service, RectangleView rectangleView) {
         this.service = service;
         this.rectangleData=rectangleView.createRectangleData();
     }
-    public ReadAllTextInDepthCommand(MyAccessibilityService service) {
+    public ReadAllTextAtDepth(MyAccessibilityService service) {
         this.service = service;
     }
 
 
     @Override
+
     public void execute() {
         service.extractAllTextInDepth(new Runnable() {
             @Override
