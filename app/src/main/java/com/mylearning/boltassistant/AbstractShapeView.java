@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.PixelFormat;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -15,8 +14,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.RelativeLayout;
-
-import java.util.Random;
 
 public abstract class AbstractShapeView extends RelativeLayout {
     final String TAG = "AbstractShapeView";
@@ -148,7 +145,7 @@ public abstract class AbstractShapeView extends RelativeLayout {
 
     public abstract int getViewWidth();
     public abstract int getViewHeight();
-    public abstract void execute(MyAccessibilityService service);
+    public abstract void addAccesibilityCommand(MyAccessibilityService service);
     public abstract String toJson();
     abstract String getType();
 
