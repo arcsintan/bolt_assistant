@@ -76,8 +76,9 @@ public class MyAccessibilityService extends AccessibilityService {
         }
     }
     public void clearCommandList(){
-        if(commandList!=null)
-        commandList.clear();
+        if(commandList!=null) {
+            commandList.clear();
+        }
     }
 
 
@@ -104,13 +105,18 @@ public class MyAccessibilityService extends AccessibilityService {
                             long startTime = System.currentTimeMillis();
                             synchronized (lock) {
                                 command.execute(); // Execute the command
-                                Log.d(TAG, " Click at location " + i);
+                                Log.d(TAG, " Click at location " + i+"  by"+Thread.currentThread().getName());
                                 lock.wait(); // Wait for the command to finish
                             }
+                            Log.d(TAG, "After lock wait!");
                             long executionTime = System.currentTimeMillis() - startTime;
+                            Log.d(TAG, " it took "+ executionTime+" to click done, timeUntilNextCommand"+command.getTimeUntilNextCommand());
                             long remainingTime = command.getTimeUntilNextCommand() - executionTime;
+                            Log.d(TAG, " remaining time="+remainingTime);
                             if (remainingTime > 0) {
+                                Log.d(TAG, "The thread should sleep for "+remainingTime+" Thread="+Thread.currentThread().getName());
                                 Thread.sleep(remainingTime); // Wait if necessary
+                                Log.d(TAG, "After sleep!");
                             }
                         } else if(command.getTypeTag()==4) {
                             synchronized (lock) {
@@ -384,7 +390,7 @@ public class MyAccessibilityService extends AccessibilityService {
             Log.d(TAG, viewHierarchy);
         }
     }
-    public void simulateTouch(float x, float y, int radius, int duration) {
+    public void simulateTouch(float x, float y, int duration) {
         //Log.d(TAG, Thread.currentThread().getName());
             Path path = new Path();
             path.moveTo(x, y);
@@ -398,6 +404,7 @@ public class MyAccessibilityService extends AccessibilityService {
                     super.onCompleted(gestureDescription);
                     Log.d(TAG, "Touch gesture completed , x=" + x + ", y=" + y);
                     synchronized (lock) {
+                        Log.d(TAG, " is going to notified the "+Thread.currentThread().getName());
                         lock.notify();
                     }
                 }
