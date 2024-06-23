@@ -32,7 +32,6 @@ public class MyAccessibilityService extends AccessibilityService {
     private static final String TAG = "MyAccessibilityService";
     private static MyAccessibilityService instance;
     private Handler handler;
-    private  List<Command> commandList = new ArrayList<>();
     private boolean debugMode = false;
 
     private StringBuilder fullText = new StringBuilder(); // Store the full extracted text
@@ -42,6 +41,7 @@ public class MyAccessibilityService extends AccessibilityService {
     private  volatile boolean shouldAllCommandBeContinue = true;
     private  volatile boolean runningStatus = false;
     private static Thread commandThread; // The thread running the commands
+    private  List<Command> commandList = new ArrayList<>();
     private List<String> importantTextData = new ArrayList<>();
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private Map<Integer, List<String>> allDepthTextMap = new HashMap<>();
@@ -77,7 +77,8 @@ public class MyAccessibilityService extends AccessibilityService {
         }
     }
     public void clearCommandList(){
-        commandList.clear();;
+        if(commandList!=null)
+        commandList.clear();
     }
 
 
@@ -94,7 +95,7 @@ public class MyAccessibilityService extends AccessibilityService {
             TripData preTripData=new TripData();
             while (shouldAllCommandBeContinue && !Thread.currentThread().isInterrupted()) {
                 TripData tripData = null;
-                for (int i = 0; i < commandList.size(); i++) {
+                for (int i = 0; i < 7; i++) {
                     try {
                         if (!shouldAllCommandBeContinue) {
                             break;
@@ -388,7 +389,7 @@ public class MyAccessibilityService extends AccessibilityService {
             Log.d(TAG, viewHierarchy);
         }
     }
-    public void simulateTouch(float x, float y, int radius, int duration, Runnable callback) {
+    public void simulateTouch(float x, float y, int radius, int duration) {
         //Log.d(TAG, Thread.currentThread().getName());
             Path path = new Path();
             path.moveTo(x, y);
@@ -401,9 +402,6 @@ public class MyAccessibilityService extends AccessibilityService {
                 public void onCompleted(GestureDescription gestureDescription) {
                     super.onCompleted(gestureDescription);
                     //Log.d(TAG, "Touch gesture completed");
-                    if (callback != null) {
-                        callback.run();
-                    }
                     synchronized (lock) {
                         lock.notify();
                     }
@@ -413,9 +411,6 @@ public class MyAccessibilityService extends AccessibilityService {
                 public void onCancelled(GestureDescription gestureDescription) {
                     super.onCancelled(gestureDescription);
                     Log.d(TAG, "Touch gesture cancelled , x=" + x + ", y=" + y);
-                    if (callback != null) {
-                        callback.run();
-                    }
                     synchronized (lock) {
                         lock.notify();
                     }
@@ -424,9 +419,6 @@ public class MyAccessibilityService extends AccessibilityService {
 
             if (!result) {
                 Log.e(TAG, "Gesture dispatch failed");
-                if (callback != null) {
-                    callback.run();
-                }
                 synchronized (lock) {
                     lock.notify();
                 }

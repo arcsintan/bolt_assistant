@@ -184,7 +184,6 @@ public class OverlayService extends Service {
     }
 
     private void handleSettingsButtonClick() {
-        handleStopButtonClick();
         if (SettingsActivity.is_running){
             Log.d(TAG, "There is another setting popup running");
             return;
