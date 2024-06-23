@@ -155,7 +155,22 @@ public class TripData  {
                 ", quality=" + quality +
                 '}';
     }
+    TripData getASample(){
+        String day = "Monday";
+        float price = 25.50f;
+        Date pickupDateTime = new Date(); // Current date and time
+        String category = "Economy";
+        float distance = 12.5f;
+        String addressStart = "123 Main St, City A";
+        String addressEnd = "456 Elm St, City B";
+        int platform = 1; // Assume 1 represents a certain platform
+        int tripType = 0; // Assume 0 represents a certain trip type
+        int quality = 5; // High quality
 
+        // Creating a TripData object using the first updated constructor
+        return new TripData(day, price, pickupDateTime, category, distance, addressStart, addressEnd, platform, tripType, quality);
+
+    }
     @Override
     public boolean equals(Object obj) {
         if (obj == null) return false;
