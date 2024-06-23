@@ -4,9 +4,9 @@ public class ReadAllTextAtDepth implements Command{
     private RectangleData rectangleData;
 
     private final int typeTag=3;
-    public ReadAllTextAtDepth(MyAccessibilityService service, RectangleView rectangleView) {
+    public ReadAllTextAtDepth(MyAccessibilityService service, RectangleData rectangleData) {
         this.service = service;
-        this.rectangleData=rectangleView.createRectangleData();
+        this.rectangleData=rectangleData;
     }
     public ReadAllTextAtDepth(MyAccessibilityService service) {
         this.service = service;
