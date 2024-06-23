@@ -6,7 +6,6 @@ import android.accessibilityservice.GestureDescription;
 import android.content.Context;
 import android.graphics.Path;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -14,11 +13,11 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.mylearning.boltassistant.DataBase.TripDataManager;
-import com.mylearning.boltassistant.TripSelector.AbstractSelector;
-import com.mylearning.boltassistant.TripSelector.BoltNormal;
+import com.mylearning.boltassistant.TripSelector.AnalyzeText;
 import com.mylearning.boltassistant.TripSelector.TripData;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,7 +104,7 @@ public class MyAccessibilityService extends AccessibilityService {
                             long startTime = System.currentTimeMillis();
                             synchronized (lock) {
                                 command.execute(); // Execute the command
-                                //Log.d(TAG, " Click at location " + i);
+                                Log.d(TAG, " Click at location " + i);
                                 lock.wait(); // Wait for the command to finish
                             }
                             long executionTime = System.currentTimeMillis() - startTime;
@@ -118,12 +117,10 @@ public class MyAccessibilityService extends AccessibilityService {
                                 command.execute(); // Execute the command and wait for it to complete
                                 lock.wait(); // Wait for the command to finish
                                 //logViewHierarchy();
-                                Boolean res=AnalyzeText.analyzeTextMap(allDepthTextMap, command.getRectangleData(), commandList);
+                                Boolean res= AnalyzeText.analyzeTextMap(allDepthTextMap, command.getRectangleData(), commandList);
+                                Log.d(TAG, "allDepthTextMap="+allDepthTextMap.toString());
+                                tripData=AnalyzeText.getTripData();
                                 if(!res)break;
-                                else{
-                                    tripData=AnalyzeText.getTripData();
-                                }
-
                             }
                         }else{
                             Log.d(TAG, "The typeTag is unknown");
@@ -135,11 +132,9 @@ public class MyAccessibilityService extends AccessibilityService {
                     }
                     Log.d(TAG, "Command["+i+"]");
                 }
-                if (tripData != null &&  !tripData.equals(preTripData)) {
-
+                if(tripData != null &&  !tripData.equals(preTripData)) {
                     tripData.setQuality(4);
                     Context context = MyAccessibilityService.getInstance(); // Get the service instance
-
                     // Insert the trip data asynchronously
                     TripData finalTripData = tripData; // Ensure it's effectively final
                     executorService.submit(() -> {
@@ -401,7 +396,7 @@ public class MyAccessibilityService extends AccessibilityService {
                 @Override
                 public void onCompleted(GestureDescription gestureDescription) {
                     super.onCompleted(gestureDescription);
-                    //Log.d(TAG, "Touch gesture completed");
+                    Log.d(TAG, "Touch gesture completed , x=" + x + ", y=" + y);
                     synchronized (lock) {
                         lock.notify();
                     }
