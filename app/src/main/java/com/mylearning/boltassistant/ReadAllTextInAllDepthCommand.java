@@ -1,6 +1,9 @@
 package com.mylearning.boltassistant;
 
+import android.util.Log;
+
 public class ReadAllTextInAllDepthCommand implements Command {
+    private final String TAG="ReadAllTextInAllDepthCommand";
     private final int typeTag=4;
     private MyAccessibilityService service;
     private RectangleData rectangleData;
