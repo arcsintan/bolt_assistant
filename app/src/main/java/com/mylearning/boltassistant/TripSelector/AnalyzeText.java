@@ -1,7 +1,9 @@
-package com.mylearning.boltassistant;
+package com.mylearning.boltassistant.TripSelector;
 
 import android.util.Log;
 
+import com.mylearning.boltassistant.Command;
+import com.mylearning.boltassistant.RectangleData;
 import com.mylearning.boltassistant.TripSelector.AbstractSelector;
 import com.mylearning.boltassistant.TripSelector.BoltNormal;
 import com.mylearning.boltassistant.TripSelector.TripData;
@@ -14,7 +16,6 @@ public class AnalyzeText {
     final private static String TAG="AnalyzeText";
     public static boolean analyzeTextMap(Map<Integer, List<String>> text, RectangleData rectangleData, List<Command> commandList) {
         if (text.containsKey(6)) {
-            tripData=null;
             Log.d(TAG, "A new trip received: " + text.get(6));
             AbstractSelector tripSelector = new BoltNormal(text.get(6), rectangleData);
             Boolean res = tripSelector.selectInput();
@@ -23,7 +24,7 @@ public class AnalyzeText {
             return res;
         } else if (text.containsKey(4)) {
             if (text.get(4).size()!=2){
-                Log.d(TAG, "The 4 command should be done:\n"+text);
+                Log.d(TAG, "The next click should be done!:\n"+text);
                 return true;
             }else return false;
 

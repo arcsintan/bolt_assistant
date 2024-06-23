@@ -53,9 +53,6 @@ RectangleData rectangleData;
 
     public void analyzeText(List<String> importantTextData) {
         Log.d(TAG, "A trip with 6 important data has been ordered");
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-//            importantTextData.forEach(data -> MyLog.d(TAG, "Data: " + data));
-//        }
 
         tripData = TripDataParser.parse(importantTextData);
         //Log.d(TAG, tripData.toString());
