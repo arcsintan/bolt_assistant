@@ -105,31 +105,26 @@ public class MyAccessibilityService extends AccessibilityService {
                             long startTime = System.currentTimeMillis();
                             synchronized (lock) {
                                 command.execute(); // Execute the command
-                                Log.d(TAG, " Click at location " + i+"  by"+Thread.currentThread().getName());
                                 lock.wait(); // Wait for the command to finish
                             }
-                            Log.d(TAG, "After lock wait!");
                             long executionTime = System.currentTimeMillis() - startTime;
-                            Log.d(TAG, " it took "+ executionTime+" to click done, timeUntilNextCommand"+command.getTimeUntilNextCommand());
                             long remainingTime = command.getTimeUntilNextCommand() - executionTime;
-                            Log.d(TAG, " remaining time="+remainingTime);
                             if (remainingTime > 0) {
-                                Log.d(TAG, "The thread should sleep for "+remainingTime+" Thread="+Thread.currentThread().getName());
                                 Thread.sleep(remainingTime); // Wait if necessary
-                                Log.d(TAG, "After sleep!");
+
                             }
-                        } else if(command.getTypeTag()==4) {
+                        } else {
                             synchronized (lock) {
                                 command.execute(); // Execute the command and wait for it to complete
                                 lock.wait(); // Wait for the command to finish
+                            }
                                 //logViewHierarchy();
                                 Boolean res= AnalyzeText.analyzeTextMap(allDepthTextMap, command.getRectangleData(), commandList);
                                 Log.d(TAG, "allDepthTextMap="+allDepthTextMap.toString());
                                 tripData=AnalyzeText.getTripData();
+
                                 if(!res)break;
-                            }
-                        }else{
-                            Log.d(TAG, "The typeTag is unknown");
+
                         }
                     } catch (InterruptedException e) {
                         Log.e(TAG, "Command processing interrupted", e);
@@ -153,7 +148,7 @@ public class MyAccessibilityService extends AccessibilityService {
                 }
                 preTripData=tripData;
                 if(preTripData!=null) {
-                    Log.d(TAG, "previous trip=" + preTripData.toString());
+                    Log.d(TAG, "#####previous trip=\n##########" + preTripData.toString());
                 }
 
             }
