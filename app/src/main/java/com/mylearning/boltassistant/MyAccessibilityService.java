@@ -19,7 +19,9 @@ import com.mylearning.boltassistant.TripSelector.BoltNormal;
 import com.mylearning.boltassistant.TripSelector.TripData;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -42,7 +44,7 @@ public class MyAccessibilityService extends AccessibilityService {
     private static Thread commandThread; // The thread running the commands
     private List<String> importantTextData = new ArrayList<>();
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-
+    private Map<Integer, List<String>> allDepthTextMap = new HashMap<>();
     @Override
     public void onCreate() {
         super.onCreate();
@@ -110,38 +112,20 @@ public class MyAccessibilityService extends AccessibilityService {
                             if (remainingTime > 0) {
                                 Thread.sleep(remainingTime); // Wait if necessary
                             }
-                        } else {
+                        } else if(command.getTypeTag()==4) {
                             synchronized (lock) {
                                 command.execute(); // Execute the command and wait for it to complete
                                 lock.wait(); // Wait for the command to finish
-                                logViewHierarchy();
-
-                                if (importantTextData.size()<6){
-                                    Log.d(TAG,"important data="+importantTextData.toString());
-                                    break;
-                                };
-
-                                try {
-                                    RectangleData rectangleData = command.getRectangleData();
-                                    AbstractSelector tripSelector = new BoltNormal(importantTextData, rectangleData);
-                                    Boolean res = tripSelector.selectInput();
-                                    tripData = tripSelector.getTripData();
-                                    Log.d(TAG, res ? "Acceptable" : "Rejected");
-
-                                    if (tripData == null) {
-                                        Log.e(TAG, "TripData is null after parsing");
-                                    }
-                                    if (!res) {
-                                        tripData.setSuccess(false);
-                                        break;
-                                    } else tripData.setSuccess(true);
-
-
-
-                                } catch (IndexOutOfBoundsException e) {
-                                    Log.e(TAG, "Error parsing importantTextData: " + e.getMessage());
+                                //logViewHierarchy();
+                                Boolean res=AnalyzeText.analyzeTextMap(allDepthTextMap, command.getRectangleData(), commandList);
+                                if(!res)break;
+                                else{
+                                    tripData=AnalyzeText.getTripData();
                                 }
+
                             }
+                        }else{
+                            Log.d(TAG, "The typeTag is unknown");
                         }
                     } catch (InterruptedException e) {
                         Log.e(TAG, "Command processing interrupted", e);
@@ -178,7 +162,38 @@ public class MyAccessibilityService extends AccessibilityService {
         commandThread.start();
         runningStatus = false;
     }
+    public void extractAllTextInAllDepth(Runnable callback) {
+        handler.post(() -> {
+            AccessibilityNodeInfo rootNode = getRootInActiveWindow();
+            if (rootNode == null) {
+                Log.e(TAG, "Root node is null");
+                if (callback != null) {
+                    callback.run();
+                }
+                return;
+            }
+            allDepthTextMap.clear(); // Clear previous data
+            collectTextInAllDepths(rootNode, 0); // Start collecting data from depth 0
+            if (callback != null) {
+                callback.run();
+            }
+        });
+    }
+//this is a recursive function which collect the data in the nodes.
+    private void collectTextInAllDepths(AccessibilityNodeInfo node, int currentDepth) {
+        if (node == null) return;
 
+        if (node.getText() != null) {
+                allDepthTextMap.computeIfAbsent(currentDepth, k -> new ArrayList<>()).add(node.getText().toString());
+        }
+
+        for (int i = 0; i < node.getChildCount(); i++) {
+            AccessibilityNodeInfo childNode = node.getChild(i);
+            if (childNode != null) {
+                collectTextInAllDepths(childNode, currentDepth + 1);
+            }
+        }
+    }
 
 
 
@@ -375,7 +390,6 @@ public class MyAccessibilityService extends AccessibilityService {
     }
     public void simulateTouch(float x, float y, int radius, int duration, Runnable callback) {
         //Log.d(TAG, Thread.currentThread().getName());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Path path = new Path();
             path.moveTo(x, y);
             //Log.d(TAG, "Path moved to x=" + x + ", y=" + y);
@@ -417,15 +431,7 @@ public class MyAccessibilityService extends AccessibilityService {
                     lock.notify();
                 }
             }
-        } else {
-            Log.e(TAG, "simulateTouch requires API level 24 or higher");
-            if (callback != null) {
-                callback.run();
-            }
-            synchronized (lock) {
-                lock.notify();
-            }
-        }
+
     }
 
 
