@@ -1,6 +1,7 @@
 package com.mylearning.boltassistant;
 
 class SimulateTouchCommand implements Command {
+    final String TAG="SimulateTouchCommand";
     private MyAccessibilityService service;
     private float x, y;
     private int duration;
@@ -25,6 +26,7 @@ class SimulateTouchCommand implements Command {
         service.simulateTouch(x, y, duration, timeUntilNextCommand, new Runnable() {
             @Override
             public void run() {
+                MyLog.d(TAG, "is executed and it is not null");
             }
         });
     }
