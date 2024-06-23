@@ -12,23 +12,27 @@ import java.util.List;
 import java.util.Map;
 
 public class AnalyzeText {
+
     private static TripData tripData = null;
     final private static String TAG="AnalyzeText";
     public static boolean analyzeTextMap(Map<Integer, List<String>> text, RectangleData rectangleData, List<Command> commandList) {
-        if (text.containsKey(6)) {
-            Log.d(TAG, "A new trip received: " + text.get(6));
-            AbstractSelector tripSelector = new BoltNormal(text.get(6), rectangleData);
+        int tripKey=5;
+        if (text.containsKey(tripKey)) {
+            Log.d(TAG, "A new trip received: " + text.get(tripKey));
+            AbstractSelector tripSelector = new BoltNormal(text.get(tripKey), rectangleData);
             Boolean res = tripSelector.selectInput();
             tripData = tripSelector.getTripData();
             Log.d(TAG, res ? "Acceptable" : "Rejected");
             return res;
         } else if (text.containsKey(4)) {
+            Log.d(TAG, "key-4 ="+text.get(4));
             if (text.get(4).size()!=2){
-                Log.d(TAG, "The next click should be done!:\n"+text);
+                Log.d(TAG, "The next click should be done!:\n");
                 return true;
             }else return false;
 
         } else if(text.containsKey(2)){
+            Log.d(TAG, "key-2 ="+text.get(2));
             if (text.get(2).get(0).contains("Err")){
                 try{
                     commandList.get(7).execute();
@@ -37,6 +41,8 @@ public class AnalyzeText {
                     Log.d(TAG, "The code can't handle the error with 8 commands if it fails to accept ");
                 }
             }
+        }else{
+            Log.d(TAG, text.toString());
         }
 
     return false;

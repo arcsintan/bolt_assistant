@@ -1,13 +1,10 @@
 package com.mylearning.boltassistant.TripSelector;
 
-import android.os.Build;
 import android.util.Log;
 
 import com.mylearning.boltassistant.MyLog;
 import com.mylearning.boltassistant.RectangleData;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class BoltNormal implements AbstractSelector {
@@ -41,8 +38,7 @@ RectangleData rectangleData;
         Log.d(TAG, "Reference Data is "+rectangleData.toString());
 
         analyzeText(importantTextData);
-        return true;
-        //return selected;
+        return selected;
     }
 
     @Override
@@ -68,11 +64,11 @@ RectangleData rectangleData;
             selected=true;
         } else if (tripData.getCategory().contains("Bo")) {
             MyLog.d(TAG, "A Bolt trip receipt");
-            if(checkDistance()&&checkTime() && checkPrice() && checkTime() && checkPickup()){
+            if(checkPricePerKm()&&checkTime()&& checkDistance()&& checkPickup()){
                 selected= true;
             }
         }else{
-            MyLog.d(TAG, "Unknow category");
+            MyLog.d(TAG, "Unknown category");
         }
     }
     public TripData getTripData() {
@@ -81,8 +77,7 @@ RectangleData rectangleData;
 
     @Override
     public boolean checkDistance() {
-        if(tripData.getPrice()/tripData.getDistance() <1.3){
-            quality=2;
+        if(tripData.getDistance()>10){
             return false;
         }
         return true;
@@ -92,10 +87,13 @@ RectangleData rectangleData;
     public boolean checkTime() {
         if(tripData.getPickupDateTime().compareTo(rectangleData.getTime())>=0){
             Log.d(TAG, tripData.getPickupDateTime().toString()+">"+rectangleData.getTime().toString() );
+            return true;
         }else{
             Log.d(TAG, tripData.getPickupDateTime().toString()+"<"+rectangleData.getTime().toString() );
+            Log.d(TAG, "Failed due to the time");
+            return false;
         }
-        return true;
+
     }
 
     @Override
@@ -109,7 +107,12 @@ RectangleData rectangleData;
     }
 
     @Override
-    public boolean checkPrice() {
+    public boolean checkPricePerKm() {
+        if(tripData.getPrice()/tripData.getDistance() <1.3){
+            quality=2;
+            Log.d(TAG, "faild due to the price/km");
+            return false;
+        }
         return true;
     }
 
