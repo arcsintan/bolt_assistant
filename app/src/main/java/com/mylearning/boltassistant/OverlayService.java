@@ -140,6 +140,9 @@ public class OverlayService extends Service {
         service.clearCommandList();
 
             if (service != null) {
+                if(shapeViews.size()==0){
+                    Log.d(TAG, "No command to be executed!");
+                    return;}
                 for (AbstractShapeView shapeView : shapeViews) {
 
                     shapeView.addAccesibilityCommand(service);
@@ -148,9 +151,7 @@ public class OverlayService extends Service {
                 service.executeAllCommands();
             }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                shapeViews.forEach(txt->Log.d(TAG, txt.toString()));
-            }
+            shapeViews.forEach(txt->Log.d(TAG, txt.toString()));
             is_running_loop=true;
 
         }else{
