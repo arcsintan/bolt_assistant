@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
@@ -137,9 +138,10 @@ public class OverlayService extends Service {
         if (!is_running_loop){
         MyAccessibilityService service = MyAccessibilityService.getInstance();
         // clearing all commands before each run
-        service.clearCommandList();
+
 
             if (service != null) {
+                service.clearCommandList();
                 if(shapeViews.size()==0){
                     Log.d(TAG, "No command to be executed!");
                     return;}
