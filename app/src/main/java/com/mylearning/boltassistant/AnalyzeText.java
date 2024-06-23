@@ -22,15 +22,18 @@ public class AnalyzeText {
             Log.d(TAG, res ? "Acceptable" : "Rejected");
             return res;
         } else if (text.containsKey(4)) {
-            Log.d(TAG, "The 4 command should be done:\n"+text.get(4));
-            return true;
+            if (text.get(4).size()!=2){
+                Log.d(TAG, "The 4 command should be done:\n"+text);
+                return true;
+            }else return false;
+
         } else if(text.containsKey(2)){
             if (text.get(2).get(0).contains("Err")){
                 try{
                     commandList.get(7).execute();
                 }
                 catch (IndexOutOfBoundsException e){
-                    Log.d(TAG, "The code can't handle the error with 7 commands if it fails to accept ");
+                    Log.d(TAG, "The code can't handle the error with 8 commands if it fails to accept ");
                 }
             }
         }
