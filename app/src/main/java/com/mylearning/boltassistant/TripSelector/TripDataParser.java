@@ -20,10 +20,7 @@ public class TripDataParser {
 
     public static TripData parse(List<String> importantTextData) {
         MyLog.d(TAG, "Parsing importantTextData: " + importantTextData.toString());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             importantTextData.forEach(data -> MyLog.d(TAG, "Data: " + data));
-        }
-
         if (importantTextData.size() < 5) {
             Log.e(TAG, "importantTextData does not contain enough elements");
             return null; // or throw an exception
