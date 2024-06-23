@@ -142,7 +142,7 @@ public class OverlayService extends Service {
             if (service != null) {
                 for (AbstractShapeView shapeView : shapeViews) {
 
-                    shapeView.execute(service);
+                    shapeView.addAccesibilityCommand(service);
                 }
                 MyLog.d(TAG, Thread.currentThread().getName());
                 service.executeAllCommands();
