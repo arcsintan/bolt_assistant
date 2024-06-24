@@ -97,6 +97,9 @@ public class RectangleData {
     public String getDropoff() {
         return dropoff;
     }
+    public float pricePerKm(){
+        return price/km;
+    }
 
     @Override
     public String toString(){

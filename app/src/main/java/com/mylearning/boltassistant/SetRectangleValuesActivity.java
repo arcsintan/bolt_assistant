@@ -116,6 +116,7 @@ public class SetRectangleValuesActivity extends Activity {
             dropoffEditText.setText(dropoff);
             widthEditText.setText(String.valueOf(width));
             heightEditText.setText(String.valueOf(height));
+            pricePerKmEditText.setText((String.valueOf(price/km)));
         }
 
         Button saveButton = findViewById(R.id.save_button);
