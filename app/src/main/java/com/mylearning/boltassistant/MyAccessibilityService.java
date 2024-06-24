@@ -118,9 +118,8 @@ public class MyAccessibilityService extends AccessibilityService {
                                 command.execute(); // Execute the command and wait for it to complete
                                 lock.wait(); // Wait for the command to finish
                             }
-                                //logViewHierarchy();
-                                Boolean res= AnalyzeText.analyzeTextMap(allDepthTextMap, command.getRectangleData(), commandList);
-                                Log.d(TAG, "allDepthTextMap="+allDepthTextMap.toString());
+
+                                Boolean res= AnalyzeText.analyzeTextMap(this, allDepthTextMap, command.getRectangleData(), commandList);
                                 tripData=AnalyzeText.getTripData();
 
                                 if(!res)break;
@@ -131,7 +130,7 @@ public class MyAccessibilityService extends AccessibilityService {
                         shouldAllCommandBeContinue=false;
                         break; // Exit the loop if interrupted
                     }
-                    Log.d(TAG, "Command["+i+"]");
+                    //Log.d(TAG, "Command["+i+"]");
                 }
                 if(tripData != null &&  !tripData.equals(preTripData)) {
                     tripData.setQuality(4);
@@ -147,9 +146,6 @@ public class MyAccessibilityService extends AccessibilityService {
                     });
                 }
                 preTripData=tripData;
-                if(preTripData!=null) {
-                    Log.d(TAG, "#####previous trip=\n##########" + preTripData.toString());
-                }
 
             }
             Log.d(TAG, "commandList size="+commandList.size());
@@ -397,9 +393,9 @@ public class MyAccessibilityService extends AccessibilityService {
                 @Override
                 public void onCompleted(GestureDescription gestureDescription) {
                     super.onCompleted(gestureDescription);
-                    Log.d(TAG, "Touch gesture completed , x=" + x + ", y=" + y);
+                    //Log.d(TAG, "Touch gesture completed , x=" + x + ", y=" + y);
                     synchronized (lock) {
-                        Log.d(TAG, " is going to notified the "+Thread.currentThread().getName());
+                        //Log.d(TAG, " is going to notified the "+Thread.currentThread().getName());
                         lock.notify();
                     }
                 }
@@ -407,7 +403,7 @@ public class MyAccessibilityService extends AccessibilityService {
                 @Override
                 public void onCancelled(GestureDescription gestureDescription) {
                     super.onCancelled(gestureDescription);
-                    Log.d(TAG, "Touch gesture cancelled , x=" + x + ", y=" + y);
+                    //Log.d(TAG, "Touch gesture cancelled , x=" + x + ", y=" + y);
                     synchronized (lock) {
                         lock.notify();
                     }
