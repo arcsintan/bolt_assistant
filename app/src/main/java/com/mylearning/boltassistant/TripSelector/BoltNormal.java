@@ -53,15 +53,8 @@ RectangleData rectangleData;
         tripData = TripDataParser.parse(importantTextData);
         //Log.d(TAG, tripData.toString());
         if(tripData.getCategory().contains("XL")){
-            //Log.d(TAG, "an XL request arrived!");
-            if(tripData.getPickupDateTime().compareTo(rectangleData.getTime())>=0){
-                Log.d(TAG, tripData.getPickupDateTime().toString()+">"+rectangleData.getTime().toString() );
-                Log.d(TAG, "time is okay for XL");
-            }else{
-                Log.d(TAG, tripData.getPickupDateTime().toString()+"<"+rectangleData.getTime().toString() );
-            }
-
-            selected=true;
+            Log.d(TAG, "an XL request arrived!");
+            selected=checkTime()? true:false;
         } else if (tripData.getCategory().contains("Bo")) {
             MyLog.d(TAG, "A Bolt trip receipt");
             if(checkPricePerKm()&&checkTime()&& checkDistance()&& checkPickup()){
@@ -85,11 +78,12 @@ RectangleData rectangleData;
 
     @Override
     public boolean checkTime() {
-        if(tripData.getPickupDateTime().compareTo(rectangleData.getTime())>=0){
-            Log.d(TAG, tripData.getPickupDateTime().toString()+">"+rectangleData.getTime().toString() );
+        if(tripData.getPickupDateTime().compareTo(rectangleData.getDate())>=0){
+            Log.d(TAG, tripData.getPickupDateTime().toString()+">"+rectangleData.getDate().toString() );
+            Log.d(TAG, "Time is okay for this trip");
             return true;
         }else{
-            Log.d(TAG, tripData.getPickupDateTime().toString()+"<"+rectangleData.getTime().toString() );
+            Log.d(TAG, tripData.getPickupDateTime().toString()+"<"+rectangleData.getDate().toString() );
             Log.d(TAG, "Failed due to the time");
             return false;
         }
