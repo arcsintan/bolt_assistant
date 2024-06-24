@@ -49,7 +49,7 @@ public class RectangleView extends AbstractShapeView {
     public RectangleView(Context context, RectangleData rectangleData) {
         this(context, rectangleData.getX(), rectangleData.getY(), rectangleData.getWidth(), rectangleData.getHeight(), rectangleData.getIndex());
         this.date = rectangleData.getDate();
-        this.time = rectangleData.getTime();
+
         this.category = rectangleData.getCategory();
         this.km = rectangleData.getKm();
         this.price = rectangleData.getPrice();
@@ -60,7 +60,7 @@ public class RectangleView extends AbstractShapeView {
         //RectangleData(int x, int y, int width, int height, int index, String type, Date date, Date time,
                 //String category, float km, float price, String pickup, String dropoff) {
         return new RectangleData(layoutParams.x, layoutParams.y, getViewWidth(), getViewHeight(),index, ShapeViewType.RECTANGLE.name(),
-                date, time, category, km, price, pickup, dropoff);
+                date, category, km, price, pickup, dropoff);
     }
 
     public RectangleView(Context context, int x, int y, AttributeSet attrs) {
@@ -96,7 +96,6 @@ public class RectangleView extends AbstractShapeView {
         Context context = getContext();
         Intent intent = new Intent(context, SetRectangleValuesActivity.class);
         intent.putExtra(SetRectangleValuesActivity.EXTRA_DATE, date.getTime());
-        intent.putExtra(SetRectangleValuesActivity.EXTRA_TIME, time.getTime());
         intent.putExtra(SetRectangleValuesActivity.EXTRA_CATEGORY, category);
         intent.putExtra(SetRectangleValuesActivity.EXTRA_KM, km);
         intent.putExtra(SetRectangleValuesActivity.EXTRA_PRICE, price);
@@ -118,7 +117,6 @@ public class RectangleView extends AbstractShapeView {
         if (intent.getAction() != null && intent.getIntExtra(SetRectangleValuesActivity.ACTION_ID,1)==index) {
             Log.d(TAG, "A broadcast recieved to update the value of the Rectangle Data");
             date = new Date(intent.getLongExtra(SetRectangleValuesActivity.EXTRA_DATE, new Date().getTime()));
-            time = new Date(intent.getLongExtra(SetRectangleValuesActivity.EXTRA_TIME, new Date().getTime()));
             category = intent.getStringExtra(SetRectangleValuesActivity.EXTRA_CATEGORY);
             km = intent.getFloatExtra(SetRectangleValuesActivity.EXTRA_KM, 0.0f);
             price = intent.getFloatExtra(SetRectangleValuesActivity.EXTRA_PRICE, 0.0f);
@@ -205,7 +203,7 @@ public class RectangleView extends AbstractShapeView {
     @Override
     public String toJson() {
         Gson gson = new Gson();
-        RectangleData rectangleData = new RectangleData(layoutParams.x, layoutParams.y, width, height, index, type, date, time, category, km, price, pickup, dropoff);
+        RectangleData rectangleData = new RectangleData(layoutParams.x, layoutParams.y, width, height, index, type, date, category, km, price, pickup, dropoff);
         return gson.toJson(rectangleData);
     }
 

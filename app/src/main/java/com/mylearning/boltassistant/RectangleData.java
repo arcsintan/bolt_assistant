@@ -10,7 +10,6 @@ public class RectangleData {
     private int index;
     private String type;
     private Date date; // Date object
-    private Date time; // Time object
     private String category;
     private float km;
     private float price;
@@ -31,7 +30,7 @@ public class RectangleData {
     }
 
     // New constructor with additional fields
-    public RectangleData(int x, int y, int width, int height, int index, String type, Date date, Date time, String category, float km, float price, String pickup, String dropoff) {
+    public RectangleData(int x, int y, int width, int height, int index, String type, Date date, String category, float km, float price, String pickup, String dropoff) {
         this.x=x;
         this.y=y;
         this.width=width;
@@ -39,7 +38,6 @@ public class RectangleData {
         this.index=index;
         this.date = date;
         this.type=type;
-        this.time = time;
         this.category = category;
         this.km = km;
         this.price = price;
@@ -49,7 +47,7 @@ public class RectangleData {
 
     // Constructor with default values for optional parameters
     public RectangleData(int x, int y, int width, int height, int index) {
-        this(x, y, width, height, index, "rectangle", new Date(), new Date(), "bolt", 0.0f, 0.0f, "", "");
+        this(x, y, width, height, index, "rectangle", new Date(),  "bolt", 0.0f, 0.0f, "", "");
     }
 
     public int getX() {
@@ -80,10 +78,6 @@ public class RectangleData {
         return date;
     }
 
-    public Date getTime() {
-        return time;
-    }
-
     public String getCategory() {
         return category;
     }
@@ -106,6 +100,6 @@ public class RectangleData {
 
     @Override
     public String toString(){
-        return "Rectangle["+index+"]("+x+", "+y+", "+width+", "+height+", "+date+", "+time+", "+category+", "+km+", "+price+", "+pickup+", "+dropoff+")";
+        return "Rectangle["+index+"]("+x+", "+y+", "+width+", "+height+", "+date+", "+category+", "+km+", "+price+", "+pickup+", "+dropoff+")";
     }
 }

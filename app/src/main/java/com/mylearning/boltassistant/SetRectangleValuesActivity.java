@@ -20,9 +20,8 @@ import java.util.Date;
 import java.util.Locale;
 
 public class SetRectangleValuesActivity extends Activity {
-    private final String TAG="RectangleActivity";
+    private final String TAG = "RectangleActivity";
     public static final String EXTRA_DATE = "com.mylearning.boltassistant.DATE";
-    public static final String EXTRA_TIME = "com.mylearning.boltassistant.TIME";
     public static final String EXTRA_CATEGORY = "com.mylearning.boltassistant.CATEGORY";
     public static final String EXTRA_KM = "com.mylearning.boltassistant.KM";
     public static final String EXTRA_PRICE = "com.mylearning.boltassistant.PRICE";
@@ -33,8 +32,7 @@ public class SetRectangleValuesActivity extends Activity {
     public static final String ACTION_UPDATE_VALUES = "com.mylearning.boltassistant.ACTION_UPDATE_VALUES";
     public static final String ACTION_ID = "com.mylearning.boltassistant.ACTION_ID";
     public static int action_index;
-    public static boolean is_running=false;
-
+    public static boolean is_running = false;
 
     private EditText dateEditText;
     private EditText timeEditText;
@@ -90,9 +88,8 @@ public class SetRectangleValuesActivity extends Activity {
         // Set default values
         Intent intent = getIntent();
         if (intent != null) {
-            Log.d(TAG, " An intent recived to show setting for rectangle");
+            Log.d(TAG, " An intent received to show setting for rectangle");
             long dateMillis = intent.getLongExtra(EXTRA_DATE, new Date().getTime());
-            long timeMillis = intent.getLongExtra(EXTRA_TIME, new Date().getTime());
             String category = intent.getStringExtra(EXTRA_CATEGORY);
             float km = intent.getFloatExtra(EXTRA_KM, 0.0f);
             float price = intent.getFloatExtra(EXTRA_PRICE, 0.0f);
@@ -100,16 +97,15 @@ public class SetRectangleValuesActivity extends Activity {
             String dropoff = intent.getStringExtra(EXTRA_DROPOFF);
             int width = intent.getIntExtra(EXTRA_WIDTH, 100);
             int height = intent.getIntExtra(EXTRA_HEIGHT, 50);
-            action_index=intent.getIntExtra(ACTION_ID, 1);
+            action_index = intent.getIntExtra(ACTION_ID, 1);
 
-            Date date = new Date(dateMillis);
-            Date time = new Date(timeMillis);
+            Date combinedDateTime = new Date(dateMillis);
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
-            dateEditText.setText(dateFormat.format(date));
-            timeEditText.setText(timeFormat.format(time));
+            dateEditText.setText(dateFormat.format(combinedDateTime));
+            timeEditText.setText(timeFormat.format(combinedDateTime));
             if (category != null) {
                 int spinnerPosition = adapter.getPosition(category);
                 categorySpinner.setSelection(spinnerPosition);
@@ -126,7 +122,7 @@ public class SetRectangleValuesActivity extends Activity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d(TAG," A broadcast for Updating the Rectangle Data is prepared");
+                Log.d(TAG, " A broadcast for Updating the Rectangle Data is prepared");
                 sendUpdateBroadcast();
                 Toast.makeText(SetRectangleValuesActivity.this, "Values updated", Toast.LENGTH_SHORT).show();
                 finish();
@@ -140,15 +136,26 @@ public class SetRectangleValuesActivity extends Activity {
                 finish();
             }
         });
-        is_running=true;
+        is_running = true;
     }
+
     private void sendUpdateBroadcast() {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
-            Date date = dateFormat.parse(dateEditText.getText().toString());
-            Date time = timeFormat.parse(timeEditText.getText().toString());
+            Date datePart = dateFormat.parse(dateEditText.getText().toString());
+            Date timePart = timeFormat.parse(timeEditText.getText().toString());
+
+            // Combine date and time
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(datePart);
+            Calendar timeCalendar = Calendar.getInstance();
+            timeCalendar.setTime(timePart);
+            calendar.set(Calendar.HOUR_OF_DAY, timeCalendar.get(Calendar.HOUR_OF_DAY));
+            calendar.set(Calendar.MINUTE, timeCalendar.get(Calendar.MINUTE));
+
+            Date combinedDateTime = calendar.getTime();
 
             String category = categorySpinner.getSelectedItem().toString();
             float km = Float.parseFloat(kmEditText.getText().toString());
@@ -160,8 +167,7 @@ public class SetRectangleValuesActivity extends Activity {
 
             // Create an Intent with the specified action
             Intent resultIntent = new Intent(ACTION_UPDATE_VALUES);
-            resultIntent.putExtra(EXTRA_DATE, date.getTime());
-            resultIntent.putExtra(EXTRA_TIME, time.getTime());
+            resultIntent.putExtra(EXTRA_DATE, combinedDateTime.getTime());  // Send combined date and time
             resultIntent.putExtra(EXTRA_CATEGORY, category);
             resultIntent.putExtra(EXTRA_KM, km);
             resultIntent.putExtra(EXTRA_PRICE, price);
@@ -178,6 +184,7 @@ public class SetRectangleValuesActivity extends Activity {
             Toast.makeText(SetRectangleValuesActivity.this, "Invalid input", Toast.LENGTH_SHORT).show();
         }
     }
+
     private DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
@@ -206,15 +213,16 @@ public class SetRectangleValuesActivity extends Activity {
         timeEditText.setText(String.format("%02d:%02d", calendar.get(Calendar.HOUR_OF_DAY),
                 calendar.get(Calendar.MINUTE)));
     }
-    public void finish(){
-        is_running=false;
-        super.finish();
 
+    @Override
+    public void finish() {
+        is_running = false;
+        super.finish();
     }
+
     @Override
     protected void onPause() {
-        is_running=false;
+        is_running = false;
         super.onPause();
-
     }
 }
