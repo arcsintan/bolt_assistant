@@ -52,8 +52,13 @@ public class BlindSelector implements AbstractSelector{
     }
 
     @Override
-    public boolean checkPricePerKm() {
+    public boolean checkPricePerKmBolt() {
         return true;
+    }
+
+    @Override
+    public boolean checkPricePerKmXL() {
+        return false;
     }
 }
 

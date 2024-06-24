@@ -11,5 +11,6 @@ public interface AbstractSelector {
     public boolean checkTime();
     public boolean checkDestination();
     public boolean checkPickup();
-    public boolean checkPricePerKm();
+    public boolean checkPricePerKmBolt();
+    public boolean checkPricePerKmXL();
 }
