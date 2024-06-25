@@ -124,9 +124,6 @@ public class MyAccessibilityService extends AccessibilityService {
     
                                 Boolean res= AnalyzeText.analyzeTextMap(this, allDepthTextMap, command.getRectangleData(), commandList);
                                 tripData=AnalyzeText.getTripData();
-                                if(tripData!=null)
-                                Log.d(TAG, "new trip= "+tripData.toString());
-
                                 if(!res)break;
 
                         }
