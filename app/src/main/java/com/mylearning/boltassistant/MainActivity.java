@@ -60,13 +60,13 @@ public class MainActivity extends AppCompatActivity {
         overlayPermissionLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
                         if (Settings.canDrawOverlays(this)) {
                             checkAccessibilityPermission();
                         } else {
                             Toast.makeText(this, "Overlay permission is required for this app to function", Toast.LENGTH_LONG).show();
                         }
-                    }
+
                 });
 
         storagePermissionLauncher = registerForActivityResult(
@@ -105,11 +105,10 @@ public class MainActivity extends AppCompatActivity {
     // }
 
     private void checkStoragePermissionAndRequest() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 requestStoragePermission();
             }
-        }
+
     }
 
     private void requestStoragePermission() {
