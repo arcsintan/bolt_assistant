@@ -51,7 +51,8 @@ public class TripDataManager {
 
     public List<TripData> getAllTripData() {
         List<TripData> tripDataList = new ArrayList<>();
-        Cursor cursor = database.query(TripDatabaseHelper.TABLE_NAME, null, null, null, null, null, null);
+        String orderBy = TripDatabaseHelper.COLUMN_PICKUP_DATETIME + " ASC";
+        Cursor cursor = database.query(TripDatabaseHelper.TABLE_NAME, null, null, null, null, null, orderBy);
 
         if (cursor.moveToFirst()) {
             do {
@@ -84,8 +85,9 @@ public class TripDataManager {
         List<TripData> tripDataList = new ArrayList<>();
         String selection = TripDatabaseHelper.COLUMN_PICKUP_DATETIME + " BETWEEN ? AND ?";
         String[] selectionArgs = {String.valueOf(startDate.getTime()), String.valueOf(endDate.getTime())};
+        String orderBy = TripDatabaseHelper.COLUMN_PICKUP_DATETIME + " ASC";
 
-        Cursor cursor = database.query(TripDatabaseHelper.TABLE_NAME, null, selection, selectionArgs, null, null, null);
+        Cursor cursor = database.query(TripDatabaseHelper.TABLE_NAME, null, selection, selectionArgs, null, null, orderBy);
 
         if (cursor.moveToFirst()) {
             do {
@@ -113,6 +115,7 @@ public class TripDataManager {
         cursor.close();
         return tripDataList;
     }
+
 
     private String getStringFromCursor(Cursor cursor, String columnName) {
         int columnIndex = cursor.getColumnIndex(columnName);
