@@ -6,6 +6,8 @@ import android.accessibilityservice.GestureDescription;
 import android.content.Context;
 import android.graphics.Path;
 import android.graphics.Rect;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -118,9 +120,12 @@ public class MyAccessibilityService extends AccessibilityService {
                                 command.execute(); // Execute the command and wait for it to complete
                                 lock.wait(); // Wait for the command to finish
                             }
-
+                            //Log.d(TAG, "the reference rectangle="+command.getRectangleData());
+    
                                 Boolean res= AnalyzeText.analyzeTextMap(this, allDepthTextMap, command.getRectangleData(), commandList);
                                 tripData=AnalyzeText.getTripData();
+                                if(tripData!=null)
+                                Log.d(TAG, "new trip= "+tripData.toString());
 
                                 if(!res)break;
 
@@ -201,32 +206,6 @@ public class MyAccessibilityService extends AccessibilityService {
     // Method to analyze the extracted text
 
 
-    public void extractTextFromRect(Rect targetRect, Runnable callback) {
-        MyLog.d(TAG, Thread.currentThread().getName());
-        handler.post(() -> {
-            AccessibilityNodeInfo rootNode = getRootInActiveWindow();
-            if (rootNode == null) {
-                Log.e(TAG, "Root node is null");
-                if (callback != null) {
-                    callback.run();
-                }
-                synchronized (lock) {
-                    lock.notify();
-                }
-                return;
-            }
-            // Debug view hierarchy
-            debugViewHierarchy(rootNode, 0, allText);
-            String extractedText = traverseNodeForText(rootNode, targetRect);
-            Log.d(TAG, "Extracted text: " + extractedText);
-            if (callback != null) {
-                callback.run();
-            }
-            synchronized (lock) {
-                lock.notify();
-            }
-        });
-    }
 
     private void textInDepth(AccessibilityNodeInfo node, int targetDepth, List<String> result) {
         collectTextInDepth(node, 0, targetDepth, result);
@@ -265,88 +244,11 @@ public class MyAccessibilityService extends AccessibilityService {
         });
     }
 
-    public void extractAllText(Runnable callback) {
-        handler.post(() -> {
-            AccessibilityNodeInfo rootNode = getRootInActiveWindow();
-            if (rootNode == null) {
-                Log.e(TAG, "Root node is null");
-                if (callback != null) {
-                    callback.run();
-                }
-                synchronized (lock) {
-                    lock.notify();
-                }
-                return;
-            }
-            fullText.setLength(0); // Clear previous text
-            logViewHierarchy();
-            traverseNodeForText(rootNode);
-            String extractedText = fullText.toString();
-            MyLog.d(TAG, "Extracted text: " + extractedText);
-            if (callback != null) {
-                callback.run();
-            }
-            synchronized (lock) {
-                lock.notify();
-            }
-        });
-    }
 
-    private String traverseNodeForText(AccessibilityNodeInfo node, Rect targetRect) {
-        if (node == null) return "";
 
-        Rect nodeRect = new Rect();
-        node.getBoundsInScreen(nodeRect);
 
-        StringBuilder textBuilder = new StringBuilder();
-        Log.d(TAG, "Node bounds: " + nodeRect.toShortString() + " Target bounds: " + targetRect.toShortString());
-        if (Rect.intersects(targetRect, nodeRect)) {
-            Log.d(TAG, "Node intersects with target rect");
-            if (node.getText() != null) {
-                textBuilder.append(node.getText().toString()).append(" ");
-                Log.d(TAG, "Node text within target rect: " + node.getText().toString());
-            } else {
-                Log.d(TAG, "Node within target rect has no text");
-            }
 
-            if (node.getChildCount() > 0) {
-                Log.d(TAG, "Node has children, traversing them");
-            } else {
-                Log.d(TAG, "Node has no children");
-            }
-        }
 
-        for (int i = 0; i < node.getChildCount(); i++) {
-            AccessibilityNodeInfo childNode = node.getChild(i);
-            if (childNode != null) {
-                textBuilder.append(traverseNodeForText(childNode, targetRect));
-            }
-        }
-
-        return textBuilder.toString().trim();
-    }
-
-    private void traverseNodeForText(AccessibilityNodeInfo node) {
-        if (node == null) return;
-
-        if (node.getText() != null) {
-            fullText.append(node.getText().toString()).append(" ");
-            Log.d(TAG, "Node text: " + node.getText().toString());
-        }
-
-        for (int i = 0; i < node.getChildCount(); i++) {
-            AccessibilityNodeInfo childNode = node.getChild(i);
-            if (childNode != null) {
-                traverseNodeForText(childNode);
-            }
-        }
-    }
-
-    public String getFullText() {
-        return fullText.toString();
-    }
-
-    // Method to traverse and log the view hierarchy
 
     private void debugViewHierarchy(AccessibilityNodeInfo node, int depth, StringBuilder result) {
         if (node == null) return;
@@ -403,7 +305,9 @@ public class MyAccessibilityService extends AccessibilityService {
                 @Override
                 public void onCancelled(GestureDescription gestureDescription) {
                     super.onCancelled(gestureDescription);
-                    //Log.d(TAG, "Touch gesture cancelled , x=" + x + ", y=" + y);
+                    Log.d(TAG, "Touch gesture cancelled , x=" + x + ", y=" + y);
+                    ToneGenerator toneGen = new ToneGenerator(AudioManager.STREAM_MUSIC, 50);
+                    toneGen.startTone(ToneGenerator.TONE_CDMA_DIAL_TONE_LITE, 200);
                     synchronized (lock) {
                         lock.notify();
                     }
@@ -411,6 +315,8 @@ public class MyAccessibilityService extends AccessibilityService {
             }, null);
 
             if (!result) {
+                ToneGenerator toneGen = new ToneGenerator(AudioManager.STREAM_MUSIC, 50);
+                toneGen.startTone(ToneGenerator.TONE_CDMA_ALERT_CALL_GUARD, 200);
                 Log.e(TAG, "Gesture dispatch failed");
                 synchronized (lock) {
                     lock.notify();

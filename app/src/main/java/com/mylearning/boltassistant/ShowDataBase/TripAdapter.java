@@ -154,7 +154,7 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
                 netPricePerDistanceTextView.setBackgroundColor(Color.GREEN);
             } else {
                 float ratio = netPricePerKm / 1.0f;
-                int green = (int) (255 * ratio);
+                int green = (int) (255 * ratio/10);
                 int red = 255 - green;
                 netPricePerDistanceTextView.setBackgroundColor(Color.rgb(red, green, 0));
             }

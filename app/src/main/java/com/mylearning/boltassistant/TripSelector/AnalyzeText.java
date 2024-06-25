@@ -26,6 +26,7 @@ public class AnalyzeText {
             Boolean res = tripSelector.selectInput();
             tripData = tripSelector.getTripData();
             Log.d(TAG, res ? "Acceptable" : "Rejected");
+
             return res;
         }else if (text.containsKey(tripKey) && text.get(tripKey).size()==1) {
             Log.d(TAG, "key-5, Accepted trip=,"+text.get(tripKey));

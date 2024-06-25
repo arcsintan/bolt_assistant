@@ -38,6 +38,7 @@ RectangleData rectangleData;
         Log.d(TAG, "Reference Data is "+rectangleData.toString());
 
         analyzeText(importantTextData);
+        tripData.setSuccess(selected);
         return selected;
     }
 
@@ -52,12 +53,16 @@ RectangleData rectangleData;
 
         tripData = TripDataParser.parse(importantTextData);
         //Log.d(TAG, tripData.toString());
+        //
         if(tripData.getCategory().contains("XL")){
+            // XL and other expensive categories are accepted by default
             Log.d(TAG, "an XL request arrived!");
             selected=checkTime() && checkPricePerKmXL();
-        } else if (tripData.getCategory().contains("Bo")) {
+
+            //end of XL analysis.
+        } else if (tripData.getCategory().contains("Bo") && rectangleData.getCategory()=="All") {
             MyLog.d(TAG, "A Bolt trip receipt");
-            if(checkPricePerKmBolt()&&checkTime()&& checkDistance()&& checkPickup()){
+            if(checkPricePerKmBolt()&&checkTime()&& checkPickup()){
                 selected= true;
             }
         }else{
