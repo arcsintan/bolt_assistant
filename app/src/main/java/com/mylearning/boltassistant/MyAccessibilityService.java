@@ -117,13 +117,12 @@ public class MyAccessibilityService extends AccessibilityService {
                         }
                         Command command = commandList.get(i); // Take the next command
                         if (command.getTypeTag() == 0) {
-                            long startTime = System.currentTimeMillis();
+                            TimeHandler timeHandler=new TimeHandler();
                             synchronized (lock) {
                                 command.execute(); // Execute the command
                                 lock.wait(); // Wait for the command to finish
                             }
-                            long executionTime = System.currentTimeMillis() - startTime;
-                            long remainingTime = command.getTimeUntilNextCommand() - executionTime;
+                            long remainingTime =timeHandler.waitingTime(command.getTimeUntilNextCommand());
                             if (remainingTime > 0) {
                                 Thread.sleep(remainingTime); // Wait if necessary
 
@@ -145,7 +144,7 @@ public class MyAccessibilityService extends AccessibilityService {
                         shouldAllCommandBeContinue=false;
                         break; // Exit the loop if interrupted
                     }
-                    //Log.d(TAG, "Command["+i+"]");
+                    Log.d(TAG, "Command["+i+"]");
                 }
                 if(tripData != null &&  !tripData.equals(preTripData)) {
                     tripData.setQuality(4);
@@ -160,8 +159,8 @@ public class MyAccessibilityService extends AccessibilityService {
 
                     });
                 }
-                if(tripData!=null)
-                preTripData=tripData;
+                if(tripData!=null) preTripData=tripData;
+
 
             }
             Log.d(TAG, "commandList size="+commandList.size());
