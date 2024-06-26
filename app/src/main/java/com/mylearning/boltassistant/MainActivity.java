@@ -125,15 +125,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkOverlayPermissionAndStartService() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.canDrawOverlays(this)) {
                 requestOverlayPermission();
             } else {
                 checkAccessibilityPermission();
             }
-        } else {
-            checkAccessibilityPermission();
-        }
     }
 
     private void requestOverlayPermission() {
