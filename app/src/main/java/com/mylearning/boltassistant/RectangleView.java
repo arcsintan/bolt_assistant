@@ -37,7 +37,7 @@ public class RectangleView extends AbstractShapeView {
         this.height = height;
         this.date = new Date();
         this.time = new Date();
-        this.category = "bolt";
+        this.category = "All";
         this.km =7;
         this.price = 12;
         this.pickup = "Lisbon";
