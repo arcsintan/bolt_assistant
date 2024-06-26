@@ -170,6 +170,9 @@ public class MyAccessibilityService extends AccessibilityService {
         commandThread.start();
         runningStatus = false;
     }
+    public boolean getRunningStatus(){
+        return runningStatus;
+    }
     public void extractAllTextInAllDepth(Runnable callback) {
         handler.post(() -> {
             AccessibilityNodeInfo rootNode = getRootInActiveWindow();

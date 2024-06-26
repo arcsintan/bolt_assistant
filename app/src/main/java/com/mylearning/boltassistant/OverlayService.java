@@ -143,6 +143,7 @@ public class OverlayService extends Service {
 
     private void handlePlayButtonClick() {
         if (!is_running_loop){
+            buttonOverlayView.findViewById(R.id.button_play).setBackgroundColor(R.color.red);
         MyAccessibilityService service = MyAccessibilityService.getInstance();
         // clearing all commands before each run
 
@@ -198,6 +199,8 @@ public class OverlayService extends Service {
         for (AbstractShapeView shapeView : shapeViews) {
             shapeView.setTouchThrough(false);
         }
+        buttonOverlayView.findViewById(R.id.button_play).setBackgroundColor(R.color.black);
+
     }
 
     private void handleSettingsButtonClick() {
