@@ -19,7 +19,7 @@ public class CircleView extends AbstractShapeView {
     private int duration;
     private int timeUntilNextCommand;
     private int centerX, centerY;
-
+private int [] locationOnScreen;
 
 
 

@@ -21,6 +21,7 @@ public abstract class AbstractShapeView extends RelativeLayout {
     protected WindowManager.LayoutParams layoutParams;
     protected boolean isTouchable = true;
 
+
     private int initialX, initialY;
     private float initialTouchX, initialTouchY;
 
@@ -53,7 +54,7 @@ public abstract class AbstractShapeView extends RelativeLayout {
         layoutParams = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
         );
@@ -157,8 +158,24 @@ public abstract class AbstractShapeView extends RelativeLayout {
         context.unregisterReceiver(broadcastReceiver);
     }
     protected abstract boolean isTouched(float x, float y);
-
-
+    public int[] getLocationOnScreen() {
+        int[] location = new int[2];
+        this.getLocationOnScreen(location);
+        return location; // returns an array where location[0] is x and location[1] is y
+    }
+    public void setTouchThrough(boolean allowTouchThrough) {
+        if (allowTouchThrough) {
+            // Add FLAG_NOT_TOUCHABLE to allow touches to pass through this view to underlying windows
+            isTouchable=false;
+            layoutParams.flags |= WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+        } else {
+            // Remove FLAG_NOT_TOUCHABLE to make the view intercept touch events
+            layoutParams.flags &= ~WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE;
+            isTouchable=true;
+        }
+        // Apply the new flags to the window
+        windowManager.updateViewLayout(this, layoutParams);
+    }
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();

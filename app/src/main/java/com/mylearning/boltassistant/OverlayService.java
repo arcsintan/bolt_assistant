@@ -54,6 +54,7 @@ public class OverlayService extends Service {
     private PowerManager.WakeLock wakeLock;
 
 
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -64,7 +65,7 @@ public class OverlayService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand: Service started");
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
+        if (!Settings.canDrawOverlays(this)) {
             Log.d(TAG, "Overlay permission not granted, stopping service");
             stopSelf();
             return START_NOT_STICKY;
@@ -152,14 +153,18 @@ public class OverlayService extends Service {
                     Log.d(TAG, "No command to be executed!");
                     return;}
                 for (AbstractShapeView shapeView : shapeViews) {
-
+                    shapeView.setTouchThrough(true);
                     shapeView.addAccesibilityCommand(service);
                 }
                 MyLog.d(TAG, Thread.currentThread().getName());
                 service.executeAllCommands();
             }
+            for(AbstractShapeView shapeView:shapeViews) {
+                Log.d(TAG, shapeView.toString());
+                int []location=shapeView.getLocationOnScreen();
+                Log.d(TAG, "location on screen="+location[0]+", "+location[1]);
+            }
 
-            shapeViews.forEach(txt->Log.d(TAG, txt.toString()));
             is_running_loop=true;
 
         }else{
@@ -190,6 +195,9 @@ public class OverlayService extends Service {
             is_running_loop=false;
         }
         Log.d(TAG, "Stop Button clicked");
+        for (AbstractShapeView shapeView : shapeViews) {
+            shapeView.setTouchThrough(false);
+        }
     }
 
     private void handleSettingsButtonClick() {

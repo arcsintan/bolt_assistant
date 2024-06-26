@@ -8,17 +8,22 @@ class SimulateTouchCommand implements Command {
     private int duration;
     private int timeUntilNextCommand;
     private int radius;
+    private int []locationOnScreen;
     public CircleData circleData;
     public RectangleData rectangleData;
     //layoutParams.x + radius, layoutParams.y + radius + 35, duration, timeUntilNextCommand)
     public SimulateTouchCommand(MyAccessibilityService service, CircleView circleView) {
         this.service = service;
         this.circleData=circleView.createCircleData();
-        x=circleData.getX()+circleData.getRadius();
-        y=circleData.getY()+circleData.getRadius()+35;
+        //x=circleData.getX()+circleData.getRadius();
+        //y=circleData.getY()+circleData.getRadius()+35;
         radius=circleData.getRadius();
         duration=circleData.getDuration();
         timeUntilNextCommand=circleData.getTimeUntilNextCommand();
+        locationOnScreen=circleView.getLocationOnScreen();
+        x=locationOnScreen[0]+radius;
+        y=locationOnScreen[1]+radius;
+
     }
 
 
