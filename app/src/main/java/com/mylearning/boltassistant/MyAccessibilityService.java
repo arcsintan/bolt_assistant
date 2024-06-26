@@ -160,6 +160,7 @@ public class MyAccessibilityService extends AccessibilityService {
 
                     });
                 }
+                if(tripData!=null)
                 preTripData=tripData;
 
             }
