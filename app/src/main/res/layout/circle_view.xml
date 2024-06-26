@@ -6,8 +6,8 @@
 
     <View
         android:id="@+id/circle"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="100px"
+        android:layout_height="100px"
         android:background="@drawable/circle_shape" />
 
     <TextView
