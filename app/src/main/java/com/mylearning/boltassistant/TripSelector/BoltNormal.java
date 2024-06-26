@@ -83,15 +83,7 @@ RectangleData rectangleData;
 
     @Override
     public boolean checkTime() {
-        if(tripData.getPickupDateTime().compareTo(rectangleData.getDate())>=0){
-            Log.d(TAG, tripData.getPickupDateTime().toString()+">"+rectangleData.getDate().toString() );
-            Log.d(TAG, "Time is okay for this trip");
-            return true;
-        }else{
-            Log.d(TAG, tripData.getPickupDateTime().toString()+"<"+rectangleData.getDate().toString() );
-            Log.d(TAG, "Failed due to the time");
-            return false;
-        }
+        return tripData.getPickupDateTime().compareTo(rectangleData.getDate()) >= 0;
 
     }
 
