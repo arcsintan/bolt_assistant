@@ -21,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -36,8 +37,11 @@ import java.util.List;
 public class OverlayService extends Service {
     private static final String TAG = "OverlayService";
     private static final String CHANNEL_ID = "ForegroundServiceChannel";
-    private static final String ACTION_SETTINGS_RESULT = "com.mylearning.boltassistant.ACTION_SETTINGS_RESULT";
 
+
+
+    private TextView transparentTextView;
+    private boolean isTextViewVisible = false;
     private WindowManager windowManager;
     private View buttonOverlayView;
     private Deque<AbstractShapeView> shapeViews;
@@ -76,6 +80,9 @@ public class OverlayService extends Service {
         initializeCenterCoordinates();
         setupButtonOverlay();
         registerSettingsResultReceiver();
+        // Call this method in onStartCommand or setupButtonOverlay
+        setupTransparentTextView();
+
         return START_STICKY;
     }
 
@@ -101,10 +108,8 @@ public class OverlayService extends Service {
         if (buttonOverlayView == null) {
             buttonOverlayView = LayoutInflater.from(this).inflate(R.layout.button_overlay_layout, null, false);
 
-            int layoutFlag = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) ?
-                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
-                    WindowManager.LayoutParams.TYPE_PHONE;
-
+            int layoutFlag =
+                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
             WindowManager.LayoutParams buttonParams = new WindowManager.LayoutParams(
                     WindowManager.LayoutParams.WRAP_CONTENT,
                     WindowManager.LayoutParams.WRAP_CONTENT,
@@ -132,6 +137,7 @@ public class OverlayService extends Service {
         buttonOverlayView.findViewById(R.id.button_stop).setOnClickListener(v -> handleStopButtonClick());
         buttonOverlayView.findViewById(R.id.button_settings).setOnClickListener(v -> handleSettingsButtonClick());
         buttonOverlayView.findViewById(R.id.button_remove).setOnClickListener(v -> handleRemoveButtonClick());
+        buttonOverlayView.findViewById(R.id.button_toggle_textview).setOnClickListener(v -> handleToggleTextView());
     }
 
     private void handlePlayButtonClick() {
@@ -249,9 +255,8 @@ public class OverlayService extends Service {
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
-                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
-                        WindowManager.LayoutParams.TYPE_PHONE,
+
+                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT
         );
@@ -285,7 +290,7 @@ public class OverlayService extends Service {
         };
 
 
-        IntentFilter filter = new IntentFilter(ACTION_SETTINGS_RESULT);
+        IntentFilter filter = new IntentFilter(SettingsActivity.ACTION_SETTINGS_RESULT);
 
         registerReceiver(settingsResultReceiver, filter);
 
@@ -337,7 +342,7 @@ public class OverlayService extends Service {
     }
 
     private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
             NotificationChannel serviceChannel = new NotificationChannel(
                     CHANNEL_ID,
                     "Foreground Service Channel",
@@ -348,6 +353,61 @@ public class OverlayService extends Service {
                 manager.createNotificationChannel(serviceChannel);
                 Log.d(TAG, "Notification channel created");
             }
-        }
+
     }
+
+    // Add a method to set up the transparent TextView
+    private void setupTransparentTextView() {
+        transparentTextView = new TextView(this);
+        transparentTextView.setBackgroundColor(0x55FF0000); // Transparent red background
+        transparentTextView.setTextColor(0xFFFFFFFF); // White text color
+        transparentTextView.setTextSize(24);
+        transparentTextView.setVisibility(View.GONE); // Initially hidden
+
+        WindowManager.LayoutParams textViewParams = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT
+        );
+
+        textViewParams.gravity = Gravity.TOP | Gravity.START;
+        textViewParams.x = 10;
+        textViewParams.y = 10;
+
+        windowManager.addView(transparentTextView, textViewParams);
+    }
+
+    private void handleToggleTextView() {
+        isTextViewVisible = !isTextViewVisible;
+        transparentTextView.setVisibility(isTextViewVisible ? View.VISIBLE : View.GONE);
+        MyAccessibilityService.setCapture_screen(isTextViewVisible);
+        buttonOverlayView.findViewById(R.id.button_toggle_textview).setBackgroundResource(isTextViewVisible? R.color.red: R.color.happy_green);
+        if(isTextViewVisible)transparentTextView.setText("trip data");
+        else transparentTextView.setText(null);
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

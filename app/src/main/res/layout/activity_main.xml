@@ -37,5 +37,15 @@
         app:layout_constraintTop_toBottomOf="@+id/button_toggle_overlay"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
+    <Button
+        android:id="@+id/button_driver_assistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Driver Assistance"
+        app:layout_constraintTop_toBottomOf="@+id/button_show_trips"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

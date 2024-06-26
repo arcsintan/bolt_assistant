@@ -30,6 +30,8 @@ import java.util.concurrent.Executors;
 
 
 public class MyAccessibilityService extends AccessibilityService {
+    public static final String ACTION_UPDATE_TEXTVIEW = "com.mylearning.boltassistant.UPDATE_TEXTVIEW";
+    public static final String EXTRA_TEXTVIEW_CONTENT = "com.mylearning.boltassistant.EXTRA_TEXTVIEW_CONTENT";
     private static final String TAG = "MyAccessibilityService";
     private static MyAccessibilityService instance;
     private Handler handler;
@@ -46,6 +48,12 @@ public class MyAccessibilityService extends AccessibilityService {
     private List<String> importantTextData = new ArrayList<>();
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private Map<Integer, List<String>> allDepthTextMap = new HashMap<>();
+
+    public static void setCapture_screen(boolean capture_screen) {
+        MyAccessibilityService.capture_screen = capture_screen;
+    }
+
+    private static boolean capture_screen=false;
     @Override
     public void onCreate() {
         super.onCreate();
@@ -60,9 +68,14 @@ public class MyAccessibilityService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        // Handle accessibility events if necessary
-    }
+        if(!capture_screen)return;
+        if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED) {
+            extractAllTextInAllDepth(() -> {
+                    Log.d(TAG, allDepthTextMap.toString());
 
+            });
+        }
+    }
     @Override
     public void onInterrupt() {
         // Handle service interruption
@@ -242,9 +255,28 @@ public class MyAccessibilityService extends AccessibilityService {
     }
 
 
+    public void clickButtonWithText(String buttonText) {
+        AccessibilityNodeInfo rootNode = getRootInActiveWindow();
+        if (rootNode == null) {
+            Log.e(TAG, "Root node is null");
+            return;
+        }
+        clickButtonWithText(rootNode, buttonText);
+    }
 
+    private void clickButtonWithText(AccessibilityNodeInfo node, String buttonText) {
+        if (node == null) return;
 
+        if (node.getText() != null && node.getText().toString().equalsIgnoreCase(buttonText)) {
+            node.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            return;
+        }
 
+        for (int i = 0; i < node.getChildCount(); i++) {
+            AccessibilityNodeInfo childNode = node.getChild(i);
+            clickButtonWithText(childNode, buttonText);
+        }
+    }
 
 
     private void debugViewHierarchy(AccessibilityNodeInfo node, int depth, StringBuilder result) {

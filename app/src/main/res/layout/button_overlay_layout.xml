@@ -17,6 +17,14 @@
         />
 
     <ImageButton
+        android:id="@+id/button_toggle_textview"
+        android:layout_width="47dp"
+        android:layout_height="46dp"
+        android:layout_marginBottom="10dp"
+        android:background="@color/happy_green"
+        android:src="@drawable/ic_da_on" />
+
+    <ImageButton
         android:id="@+id/button_add_circle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -51,7 +51,7 @@ public class TripDataManager {
 
     public List<TripData> getAllTripData() {
         List<TripData> tripDataList = new ArrayList<>();
-        String orderBy = TripDatabaseHelper.COLUMN_PICKUP_DATETIME + " ASC";
+        String orderBy ="" ;//"TripDatabaseHelper.COLUMN_PICKUP_DATETIME + " ASC";
         Cursor cursor = database.query(TripDatabaseHelper.TABLE_NAME, null, null, null, null, null, orderBy);
 
         if (cursor.moveToFirst()) {
