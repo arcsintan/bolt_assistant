@@ -107,17 +107,13 @@ RectangleData rectangleData;
 
     @Override
     public boolean checkPricePerKmBolt() {
-        if(tripData.getNetPricePerKm() >rectangleData.pricePerKm()){
-            return true;
-        }
-        quality=2;
-        Log.d(TAG, "faild due to the price/km="+tripData.getNetPricePerKm());
-        return true;
+        return tripData.getNetPricePerKm() >rectangleData.pricePerKm();
+
     }
 
     @Override
     public boolean checkPricePerKmXL() {
-        return tripData.getPrice()/tripData.getDistance() > rectangleData.pricePerKm();
+        return tripData.getNetPricePerKm() > rectangleData.pricePerKm();
     }
 
 
