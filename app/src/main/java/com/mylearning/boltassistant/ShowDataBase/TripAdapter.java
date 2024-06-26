@@ -90,8 +90,8 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
                 new SimpleDateFormat("dd MMM, HH:mm", Locale.getDefault()).format(tripData.getOrderTime()),
                 tripData.getCategory(),
                 tripData.getDistance(),
-                tripData.getPrice() * 0.75f,
-                (tripData.getPrice() * 0.75f) / tripData.getDistance(),
+                tripData.getNetPrice(),
+                tripData.getNetPricePerKm(),
                 tripData.getAddressStart(),
                 tripData.getAddressEnd());
         ClipData clip = ClipData.newPlainText("Trip Data", tripDataString);
@@ -144,9 +144,9 @@ public class TripAdapter extends RecyclerView.Adapter<TripAdapter.TripViewHolder
             categoryTextView.setText(tripData.getCategory() + ", ");
             distanceTextView.setText(String.format(Locale.getDefault(), "%.1f km.", tripData.getDistance()));
 
-            float netPrice = tripData.getPrice() * 0.75f;
-            float netPricePerKm = netPrice / tripData.getDistance();
-            netPriceTextView.setText(String.format(Locale.getDefault(), "%.2f€, ", netPrice));
+
+            float netPricePerKm = tripData.getNetPricePerKm();
+            netPriceTextView.setText(String.format(Locale.getDefault(), "%.2f€, ", tripData.getNetPrice()));
             netPricePerDistanceTextView.setText(String.format(Locale.getDefault(), "%.2f€/km", netPricePerKm));
 
             // Color handling for net price per km

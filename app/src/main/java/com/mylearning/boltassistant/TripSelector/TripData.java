@@ -3,6 +3,7 @@ package com.mylearning.boltassistant.TripSelector;
 import java.util.Date;
 
 public class TripData  {
+    private float percent=0.75f;
     private String day;
     private float price;
     private Date pickupDateTime;
@@ -180,5 +181,14 @@ public class TripData  {
 
         TripData anotherTripData = (TripData) obj;
         return this.distance == anotherTripData.distance && this.price == anotherTripData.price && this.price == anotherTripData.price;
+    }
+    public float getNetPrice(){
+        return percent*price;
+    }
+    public void setPercent(float percent){
+        this.percent=percent;
+    }
+    public float getNetPricePerKm(){
+        return  percent*price/distance;
     }
 }
