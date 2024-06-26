@@ -19,6 +19,7 @@ public class AnalyzeText {
     final private static String TAG="AnalyzeText";
 
     public static boolean analyzeTextMap(MyAccessibilityService service, Map<Integer, List<String>> text, RectangleData rectangleData, List<Command> commandList) {
+        tripData=null;
         int tripKey=5;
         if (text.containsKey(tripKey) && text.get(tripKey).size()>3) {
             Log.d(TAG, "key-5=: " + text.get(tripKey));
@@ -42,6 +43,11 @@ public class AnalyzeText {
                     commandList.get(7).execute();
                     Log.d(TAG, "Command[7] done!");
                     service.lock.wait();
+                    }
+                    synchronized (service.lock){
+                        commandList.get(8).execute();
+                        Log.d(TAG, "Command[7] done!");
+                        service.lock.wait();
                     }
                 }
                 catch (IndexOutOfBoundsException e){
