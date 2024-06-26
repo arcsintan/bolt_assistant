@@ -6,6 +6,7 @@ import com.mylearning.boltassistant.Command;
 import com.mylearning.boltassistant.MyAccessibilityService;
 import com.mylearning.boltassistant.MyLog;
 import com.mylearning.boltassistant.RectangleData;
+import com.mylearning.boltassistant.TimeHandler;
 import com.mylearning.boltassistant.TripSelector.AbstractSelector;
 import com.mylearning.boltassistant.TripSelector.BoltNormal;
 import com.mylearning.boltassistant.TripSelector.TripData;
@@ -35,29 +36,27 @@ public class AnalyzeText {
             Log.d(TAG, "trip complete data: ");
             Log.d(TAG, "key-4 =" + text.get(4));
             return true;
-        } else if(text.containsKey(2)){
-            if (text.get(2).get(0).contains("Err")){
+        } else if(text.containsKey(2)&& text.get(2).get(0).contains("Err")){
                 Log.d(TAG, "Error happened, we should ignore this trip, Command[7]");
                 try{
+                    TimeHandler timeHandler=new TimeHandler();
                     synchronized (service.lock){
                     commandList.get(7).execute();
                     Log.d(TAG, "Command[7] done!");
                     service.lock.wait();
                     }
-                    synchronized (service.lock){
-                        commandList.get(8).execute();
-                        Log.d(TAG, "Command[7] done!");
-                        service.lock.wait();
+                    long remaingTime=timeHandler.waitingTime(commandList.get(7).getTimeUntilNextCommand());
+                    if(remaingTime>0){
+                        Thread.sleep(remaingTime);
                     }
+                    return true;
                 }
                 catch (IndexOutOfBoundsException e){
                     Log.d(TAG, "The code can't handle the error with 8 commands if it fails to accept ");
                 } catch (InterruptedException e) {
                     Log.e(TAG, "Analysis text processing interrupted", e);
                 }
-            }
-        }else{
-            Log.d(TAG, text.toString());
+
         }
 
     return false;

@@ -60,7 +60,7 @@ RectangleData rectangleData;
             selected=checkTime() && checkPricePerKmXL();
 
             //end of XL analysis.
-        } else if (tripData.getCategory().contains("Bo")){
+        } else if (tripData.getCategory().contains("Bo") && rectangleData.getCategory().startsWith("A")){
             MyLog.d(TAG, "A Bolt trip receipt");
             if(checkPricePerKmBolt()&&checkTime()&& checkPickup()){
                 selected= true;
