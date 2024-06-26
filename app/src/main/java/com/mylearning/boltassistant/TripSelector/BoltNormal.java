@@ -60,7 +60,7 @@ RectangleData rectangleData;
             selected=checkTime() && checkPricePerKmXL();
 
             //end of XL analysis.
-        } else if (tripData.getCategory().contains("Bo") && (rectangleData.getCategory().contains("All")|| rectangleData.getCategory().contains("Bo"))){
+        } else if (tripData.getCategory().contains("Bo")){
             MyLog.d(TAG, "A Bolt trip receipt");
             if(checkPricePerKmBolt()&&checkTime()&& checkPickup()){
                 selected= true;
@@ -107,11 +107,11 @@ RectangleData rectangleData;
 
     @Override
     public boolean checkPricePerKmBolt() {
-        if(tripData.getPrice()/tripData.getDistance() <rectangleData.pricePerKm()){
-            quality=2;
-            Log.d(TAG, "faild due to the price/km");
-            return false;
+        if(tripData.getNetPricePerKm() >rectangleData.pricePerKm()){
+            return true;
         }
+        quality=2;
+        Log.d(TAG, "faild due to the price/km="+tripData.getNetPricePerKm());
         return true;
     }
 
